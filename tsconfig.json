@@ -1,0 +1,50 @@
+{
+  "moduleResolution": "node",
+  "compilerOptions": {
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "*": ["*", "*.ios", "*.android"],
+      "images/*": [
+        "assets/images/*",
+        "assets/images/*.ios",
+        "assets/images/*.android"
+      ],
+      "components/*": [
+        "components/*",
+        "components/*.ios",
+        "components/*.android"
+      ],
+      "assets/*": ["assets/*", "assets/*.ios", "assets/*.android"],
+      "constants/*": ["constants/*", "constants/*.ios", "constants/*.android"],
+      "modules/*": ["modules/*", "modules/*.ios", "modules/*.android"],
+      "navigator/*": ["navigator/*", "navigator/*.ios", "navigator/*.android"],
+      "screens/*": ["screens/*", "screens/*.ios", "screens/*.android"],
+      "utils/*": ["utils/*", "utils/*.ios", "utils/*.android"],
+      "hooks/*": ["hooks/*", "hooks/*.ios", "hooks/*.android"],
+      "hocs/*": ["hocs/*", "hocs/*.ios", "hocs/*.android"],
+      "store/*": ["store/*", "store/*.ios", "store/*.android"],
+      "configs/*": ["configs/*", "configs/*.ios", "configs/*.android"],
+      "providers/*": ["providers/*", "providers/*.ios", "providers/*.android"],
+      "data/*": ["data/*", "data/*.ios", "data/*.android"],
+      "modals/*": ["modals/*", "modals/*.ios", "modals/*.android"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}

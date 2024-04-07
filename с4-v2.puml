@@ -1,0 +1,43 @@
+package "React Application" {
+    [Login Page]
+    [Contacts Page]
+    [About Company Page]
+    [User Management Page]
+    [Lot Management Page]
+    [Group Management Page]
+    [Lot Info Page]
+    [Request Page]
+}
+
+actor User
+actor "Поставщик" as Supplier
+actor "Администратор" as Administrator
+actor "Специалист по снабжению" as Specialist
+
+
+User --> [Login Page]: views
+User --> [Contacts Page]: views
+User --> [About Company Page]: views
+Specialist --> [Contacts Page]: views
+Specialist --> [Lot Management Page]: views
+Supplier --> [Contacts Page]: views
+Specialist --> [Lot Info Page]: views
+Supplier --> [Lot Info Page]: views
+Supplier --> [Request Page]: views
+Administrator --> [User Management Page]: views
+Administrator --> [Group Management Page]: views
+
+[Login Page] --> [React Components]: renders login form
+[Contacts Page] --> [React Components]: renders contacts content
+[User Management Page] --> [React Components]: renders user management features
+[Lot Management Page] --> [React Components]: renders lot management features
+[Group Management Page] --> [React Components]: renders group management features
+[About Company Page] --> [React Components]: renders contact info
+[Request Page] --> [React Components]: renders management request
+
+[React Components] --> [Redux Store]: dispatches actions
+[Redux Store] --> [Middleware]: applies middleware for handling actions
+[Middleware] --> [Backend API Client]: sends requests to backend
+[Backend API Client] --> [Backend API]: communicates with backend server
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+!define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+!include DEVICONS2/mysql.puml
+
+'LAYOUT_WITH_LEGEND()'
+
+System_Boundary(backend, "Backend") {
+    Component(AuthController, "AuthController", "Spring MVC Rest Controller", "Обрабатывает запросы связанные с аутентификацией")
+    Component(UserController, "UserController", "Spring MVC Rest Controller", "Обрабатывает запросы связанные с пользователями")
+    Component(LotController, "LotController", "Spring MVC Rest Controller", "Обрабатывает запросы связанные с лотами")
+    Component(GroupEtsController, "GroupEtsController", "Spring MVC Rest Controller", "Обрабатывает запросы связанные с группами СЭТ")
+    Component(SecurityComponent, "SecurityComponent", "Web Security Component", "Перехватывает и обрабатывает запросы")
+
+    Component(AuthService, "AuthService", "Service", "Содержит бизнес логику связанную с аутентификацией")
+    Component(LotService, "LotService", "Service", "Содержит бизнес логику связанную с информацией лотов")
+    Component(RequestService,"RequestService", "Service", "Содержит бизнес логику связанную с заявками на позиции лота")
+    Component(PositionService,"PositionService", "Service", "Содержит бизнес логику связанную с позициями лота")
+    Component(UserService, "UserService", "Service", "Содержит бизнес логику связанную с пользователями")
+    Component(GroupEtsService, "GroupEtsService", "Service", "Содержит бизнес логику связанную с пользователями группами СЭТ")
+
+    Component(LotRepository, "LotRepository", "JPA Repository", "Реализует CRUD с информацией лотов")
+    Component(PositionRepository, "PositionRepository", "JPA Repository", "Реализует CRUD с позициями лотов")
+    Component(RequestRepository, "RequestRepository", "JPA Repository", "Реализует CRUD с заявками на позиции")
+    Component(UserRepository, "UserRepository", "JPA Repository", "Реализует CRUD с пользователями")
+    Component(GroupEtsRepository, "GroupEtsRepository", "JPA Repository", "Реализует CRUD с группами СЭТ")
+}
+
+ContainerDb(db, "Database", "MySQL", "Хранит информацию о пользователях, лотах, группах Сэт и т.д.", $sprite="mysql")
+
+Rel_D(AuthController, SecurityComponent, "Uses", "AuthDTO")
+Rel_D(LotController, LotService, "Uses")
+Rel_D(LotController, PositionService, "Uses")
+Rel_D(LotController, RequestService, "Uses")
+Rel_D(UserController, UserService, "Uses", "UserDTO")
+Rel_D(GroupEtsController, GroupEtsService, "Uses", "GroupEtsDTO")
+
+Rel_D(AuthService, UserRepository, "Uses", "AuthDTO")
+Rel_D(UserService, UserRepository, "Uses", "UserhDTO")
+Rel_D(GroupEtsService, GroupEtsRepository, "Uses", "GroupEtsDTO")
+Rel_D(LotService, LotRepository, "Uses")
+Rel_D(PositionService, PositionRepository, "Uses")
+Rel_D(RequestService, RequestRepository, "Uses")
+Rel_D(LotService, GroupEtsRepository, "Uses")
+
+Rel_D(LotRepository, db, "CRUD", "SQLRequest")
+Rel_D(PositionRepository, db, "CRUD", "SQLRequest")
+Rel_D(RequestRepository, db, "CRUD", "SQLRequest")
+Rel_D(UserRepository, db, "CRUD", "SQLRequest")
+Rel_D(GroupEtsRepository, db, "CRUD", "SQLRequest")
+
+Rel_D(SecurityComponent, AuthService, "Uses", "AuthDTO")
+@enduml

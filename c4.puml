@@ -1,0 +1,139 @@
+@startuml SDS-Trade
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Person(admin, "Admin")
+
+Container_Boundary(viewAdmin, "View Admin", "React") {
+    Component(mainScreenAdmin, "Main Screen", "React")
+    Component(contactsPageAdmin, "Contacts Page", "React")
+    Component(purchaseAndTendersPageAdmin, "Purchase & Tenders Page", "React")
+    Component(weBuyPageAdmin, "We Buy Page", "React")
+    Component(passwordRecoveryPageAdmin, "Password Recovery Page", "React")
+    Component(useManagerStateAdmin, "useManagerState", "ts")
+    Component(manageUsers, "Manage Users", "ts")
+}
+
+Rel(admin, viewAdmin, "Uses")
+Rel(contactsPageAdmin, useManagerStateAdmin, "Includes")
+Rel(purchaseAndTendersPageAdmin, useManagerStateAdmin, "Includes")
+Rel(weBuyPageAdmin, useManagerStateAdmin, "Includes")
+Rel(passwordRecoveryPageAdmin, useManagerStateAdmin, "Includes")
+Rel(manageUsers, useManagerStateAdmin, "Includes")
+Rel(useManagerStateAdmin, coreAdmin, "Includes")
+
+Container_Boundary(coreAdmin, "Core") {
+    Component(signInControllerAdmin, "Sign In Controller", "ts")
+    Component(signOutControllerAdmin, "Sign Out Controller", "ts")
+    Component(recoveryPasswprdControllerAdmin, "Recovery Password Controller", "ts")
+    Component(authStateAdmin, "Authorization State", "ts")
+    Component(tokenStorageAdmin, "Token Storage", "ts")
+    Component(apiServiceAdmin, "API Service", "ts")
+    Component(authServiceAdmin, "Auth Service", "ts")
+    Component(userService, "User Service", "ts")
+    Component(userAcceptController, "User Accept Controller", "ts")
+    Component(userRejectController, "User Reject Controller", "ts")
+}
+
+Rel(signOutControllerAdmin, authStateAdmin, "Uses")
+Rel(signInControllerAdmin, authStateAdmin, "Uses")
+Rel(authStateAdmin, tokenStorageAdmin, "Uses")
+Rel(authServiceAdmin, signOutControllerAdmin, "Uses")
+Rel(authServiceAdmin, signInControllerAdmin, "Uses")
+Rel(authServiceAdmin, recoveryPasswprdControllerAdmin, "Uses")
+Rel(recoveryPasswprdControllerAdmin, apiServiceAdmin, "Uses")
+Rel(userService, userAcceptController, "Uses")
+Rel(userAcceptController, apiServiceAdmin, "Uses")
+Rel(userRejectController, apiServiceAdmin, "Uses")
+
+Person(supplySpecialist, "SupplySpecialist")
+
+Container_Boundary(viewSupplySpecialist, "View", "React") {
+    Component(mainScreenSupplySpecialist, "Main Screen", "React")
+    Component(contactsPageSupplySpecialist, "Contacts Page", "React")
+    Component(authPageSupplySpecialist, "Auth Page", "React")
+    Component(purchaseAndTendersPageSupplySpecialist, "Purchase & Tenders Page", "React")
+    Component(weBuyPageSupplySpecialist, "We Buy Page", "React")
+    Component(passwordRecoveryPageSupplySpecialist, "Password Recovery Page", "React")
+    Component(myLotPage, "My Lot Page", "React")
+    ' Component(headerSupplySpecialist, "Header", "ts")
+    ' Component(navigationMenuSupplySpecialist, "Navigation Menu", "ts")
+    ' Component(searchSupplySpecialist, "Search", "ts")
+    ' Component(loginPopupSupplySpecialist, "Login Popup", "ts")
+    ' Component(registrationPopupSupplySpecialist, "Registration Popup", "ts")
+    ' Component(passwordRecoveryPopupSupplySpecialist, "Password Recovery Popup", "ts")
+    Component(useManagerState, "useManagerState", "ts")
+}
+
+Container_Boundary(core, "Core") {
+    Component(signInController, "Sign In Controller", "ts")
+    Component(signOutController, "Sign Out Controller", "ts")
+    Component(recoveryPasswprdController, "Recovery Password Controller", "ts")
+    Component(completeLotController, "Complete Lot Controller", "ts")
+    Component(authState, "Authorization State", "ts")
+    Component(lotState, "Lot State", "ts")
+    Component(tokenStorage, "Token Storage", "ts")
+    Component(apiService, "API Service", "ts")
+    Component(lotService, "Lot Service", "ts")
+    Component(authService, "Auth Service", "ts")
+    Component(lotStorage, "Lot Storage", "ts")
+    Component(infoLot, "Info Lot", "ts")
+}
+
+Rel(signInController, apiService, "Uses")
+Rel(lotState, lotStorage, "Uses")
+Rel(lotService, completeLotController, "Uses")
+Rel(authService, signInController, "Uses")
+Rel(authService, signOutController, "Uses")
+Rel(authService, recoveryPasswprdController, "Uses")
+Rel(completeLotController, apiService, "Uses")
+Rel(completeLotController, apiService, "Uses")
+Rel(completeLotController, lotState, "Uses")
+Rel(signInController, authState, "Uses")
+Rel(lotService, infoLot, "Uses")
+Rel(infoLot, apiService, "Uses")
+Rel(infoLot, lotStorage, "Uses")
+Rel(recoveryPasswprdController, apiService, "Uses")
+Rel(signOutController, authState, "Uses")
+Rel(authState, tokenStorage, "Uses")
+Rel(contactsPageSupplySpecialist, useManagerState, "Uses")
+Rel(useManagerState, core, "Uses")
+Rel(authPageSupplySpecialist, useManagerState, "Uses")
+Rel(passwordRecoveryPageSupplySpecialist, useManagerState, "Uses")
+Rel(myLotPage, useManagerState, "Uses")
+Rel(purchaseAndTendersPageSupplySpecialist, useManagerState, "Uses")
+Rel(weBuyPageSupplySpecialist, useManagerState, "Uses")
+Rel(supplySpecialist, viewSupplySpecialist, "Uses")
+' Rel(mainScreenSupplySpecialist, headerSupplySpecialist, "Includes")
+' Rel(mainScreenSupplySpecialist, navigationMenuSupplySpecialist, "Includes")
+' Rel(mainScreenSupplySpecialist, searchSupplySpecialist, "Includes")
+' Rel(mainScreenSupplySpecialist, loginPopupSupplySpecialist, "Includes")
+' Rel(mainScreenSupplySpecialist, registrationPopupSupplySpecialist, "Includes")
+' Rel(mainScreenSupplySpecialist, passwordRecoveryPopupSupplySpecialist, "Includes")
+
+' Person(supplier, "Поставщик")
+
+' Container_Boundary(frontendSupplier, "Frontend Поставщика", "React") {
+'     Container(mainScreenSupplier, "Main Screen", "React")
+'     Container(contactsPageSupplier, "Contacts Page", "React")
+'     Container(purchaseAndTendersPageSupplier, "Purchase & Tenders Page", "React")
+'     Container(weBuyPageSupplier, "We Buy Page", "React")
+'     Container(passwordRecoveryPageSupplier, "Password Recovery Page", "React")
+'     Component(headerSupplier, "Header", "ts")
+'     Component(navigationMenuSupplier, "Navigation Menu", "ts")
+'     Component(searchSupplier, "Search", "ts")
+'     Component(loginPopupSupplier, "Login Popup", "ts")
+'     Component(registrationPopupSupplier, "Registration Popup", "ts")
+'     Component(passwordRecoveryPopupSupplier, "Password Recovery Popup", "ts")
+' }
+
+' Rel(supplier, frontendSupplier, "Uses")
+' Rel(mainScreenSupplier, headerSupplier, "Includes")
+' Rel(mainScreenSupplier, navigationMenuSupplier, "Includes")
+' Rel(mainScreenSupplier, searchSupplier, "Includes")
+' Rel(mainScreenSupplier, loginPopupSupplier, "Includes")
+' Rel(mainScreenSupplier, registrationPopupSupplier, "Includes")
+' Rel(mainScreenSupplier, passwordRecoveryPopupSupplier, "Includes")
+
+
+SHOW_FLOATING_LEGEND()
+@enduml
