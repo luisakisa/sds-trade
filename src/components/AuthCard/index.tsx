@@ -4,7 +4,7 @@ import Button from "components/Button";
 import { authMiddleware } from "store/middlewares";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "store";
+import { AppDispatch, Redux } from "store";
 
 const AuthCard: React.FC = () => {
   const [login, setLogin] = useState<string>("");
@@ -28,6 +28,7 @@ const AuthCard: React.FC = () => {
         setError("Неверный логин или пароль");
       } else {
         navigate("/profile");
+        dispatch(Redux.Actions.Auth.setEmail(login));
       }
     } catch (e) {
       setError("Неверный логин или пароль");

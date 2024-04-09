@@ -1,0 +1,285 @@
+import React, { useEffect } from "react";
+import Header from "../../components/Header";
+import "./styles.css";
+import { Redux } from "store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Button,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { lotsMiddleware } from "store/middlewares";
+import { UnknownAction } from "@reduxjs/toolkit";
+import { Lot, Position } from "store/lots/reducer";
+import { useParams } from "react-router";
+import { getValue } from "@testing-library/user-event/dist/utils";
+
+const columnHelper = createColumnHelper<Position>();
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
+const getWidth = () => {
+  return window.innerWidth;
+};
+
+function LotInfo() {
+  const id = useParams<{ id: string }>().id;
+  const dispatch = useDispatch();
+  const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
+  const [status, setStatus] = React.useState("В работе");
+  const [selectedPosition, setSelectedPosition] = React.useState(0);
+  const [summ, setSumm] = React.useState(0);
+  const [data, setData] = React.useState(() => [...lots]);
+
+  const getUniqueSuppliers = () => {
+    const suppliers: Set<string> = new Set();
+    lots[0].positions.forEach((position) => {
+      {
+        position.requests.forEach((request) => {
+          suppliers.add(request.supplier);
+        });
+      }
+    });
+    return Array.from(suppliers);
+  };
+
+  const uniqueSuppliers = getUniqueSuppliers();
+
+  useEffect(() => {
+    if (lots !== data) {
+      dispatch(lotsMiddleware() as unknown as UnknownAction);
+      if (lots.length > 0) {
+        const formattedLots = lots.filter((lot) => {
+          return lot.id === Number(id);
+        });
+        setData(formattedLots);
+        setStatus(
+          formattedLots[0].status === "active" ? "В работе" : "Завершен"
+        );
+      }
+    }
+  }, [dispatch]);
+
+  const firstColumn = [
+    columnHelper.accessor("id", {
+      header: () => "Позиции лота",
+      cell: () => {
+        const content =
+          data[0].positions.length > 0 ? (
+            <Table style={{ width: 300 }}>
+              <TableHead style={{ paddingLeft: 20 }}>
+                <TableRow>
+                  <TableCell>Наименование</TableCell>
+                  <TableCell>руб./шт.</TableCell>
+                  <TableCell> шт.</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data[0].positions.map((req, index) => (
+                  <TableRow hover key={index}>
+                    <TableCell>{req.name}</TableCell>
+                    <TableCell>{req.price}</TableCell>
+                    <TableCell>{req.quantity}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            "No offers"
+          ); // Display "No offers" if no matching requests
+
+        return content; // Display the requests content
+      },
+    }),
+  ];
+
+  const handleCheckboxChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {};
+
+  const columns: any[] = uniqueSuppliers.map((supplier) => ({
+    id: supplier, // Use supplier as unique identifier
+    header: () => supplier, // Display supplier name in header
+    cell: () => {
+      const matchingRequests = data[0].positions.flatMap((position) =>
+        position.requests.filter((req) => req.supplier === supplier)
+      );
+
+      const requestsContent =
+        matchingRequests.length > 0 ? (
+          <Table style={{ width: 200 }}>
+            <TableHead style={{ paddingLeft: 50 }}>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>Наименование</TableCell>
+                <TableCell>руб./шт.</TableCell>
+                <TableCell> шт.</TableCell>
+                <TableCell> Сумма</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {matchingRequests.map((req, index) => (
+                <TableRow hover key={index}>
+                  <Checkbox onChange={handleCheckboxChange} />
+                  <TableCell>{req.name}</TableCell>
+                  <TableCell>{req.price}</TableCell>
+                  <TableCell>{req.quantity}</TableCell>
+                  <TableCell>{req.quantity * req.price}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          "No offers"
+        ); // Display "No offers" if no matching requests
+
+      return requestsContent; // Display the requests content
+    },
+  }));
+
+  const table = useReactTable({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    data,
+    columns: firstColumn.concat(columns),
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const handleStatusChange = (newStatus: string) => {
+    setStatus(newStatus);
+  };
+
+  return (
+    <div
+      className="Lot"
+      style={{ display: "flex", height: "100%", width: "100%" }}
+    >
+      <div
+        style={{
+          flexGrow: 1,
+          height: "100%",
+          flexDirection: "column",
+          display: "flex",
+        }}
+      >
+        <Header></Header>
+        <div
+          style={{
+            flex: 1,
+            minHeight: 40,
+            marginLeft: 200,
+            marginTop: -20,
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+            border: "1px solid #ddd",
+            padding: 20,
+            backgroundColor: "#f7f7f7",
+          }}
+        >
+          <text>Статус лота: {status}</text>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "row",
+              marginTop: 10,
+              flex: 1,
+              width: "100%",
+            }}
+          >
+            <text>Выбрано позиций: {selectedPosition}</text>
+            <text>Общая сумма: {summ}</text>
+          </div>
+        </div>
+        <div
+          style={{
+            overflowX: "auto",
+            marginLeft: 200,
+            width: getWidth() - 200,
+          }}
+        >
+          <Table
+            className="table-lotsInfo"
+            style={{ border: "1px solid #ddd" }}
+            padding="normal"
+          >
+            <TableHead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableCell
+                      key={header.id}
+                      style={{ textAlign: "center", border: "1px solid #ddd" }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHead>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      style={{ border: "1px solid #ddd" }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="Sidebar">
+          <ul>
+            <li>
+              <a href="#" onClick={() => handleStatusChange("В работе")}>
+                В работе
+              </a>
+            </li>
+            <li>
+              <a href="#" onClick={() => handleStatusChange("Завершенные")}>
+                Завершенные
+              </a>
+            </li>
+            <li>
+              <Button>Создать</Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default LotInfo;

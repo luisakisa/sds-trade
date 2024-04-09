@@ -11,18 +11,24 @@ export interface Auth {
   isAuthenticated: boolean;
   token: string | undefined;
   role: Role.Admin | Role.Supplier | Role.SupplierSpecialist | undefined;
+  email: string | undefined;
 }
 
 const initialState: Auth = {
   isAuthenticated: false,
   token: undefined,
   role: undefined,
+  email: undefined,
 };
 
 export const auth = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setEmail(state, action: PayloadAction<string>) {
+      state.email = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(authMiddleware.fulfilled, (state, action) => {
       state.isAuthenticated = true;

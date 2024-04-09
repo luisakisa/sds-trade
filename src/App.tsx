@@ -8,7 +8,10 @@ import SignUp from "screens/SignUp";
 import Profile from "screens/Profile";
 import CreateLot from "screens/CreateLot";
 import { Provider } from "react-redux";
-import store from "store";
+import store, { persistor } from "store";
+import { PersistGate } from "redux-persist/integration/react";
+import Lots from "screens/Lots";
+import LotInfo from "screens/LotInfo";
 
 function App() {
   const router = createBrowserRouter([
@@ -40,11 +43,21 @@ function App() {
       path: "/createlot",
       element: <CreateLot />,
     },
+    {
+      path: "/lots",
+      element: <Lots />,
+    },
+    {
+      path: "/lot/:id",
+      element: <LotInfo />,
+    },
   ]);
 
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterProvider router={router} />
+      </PersistGate>
     </Provider>
   );
 }

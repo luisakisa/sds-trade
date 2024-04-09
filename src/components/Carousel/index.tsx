@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./styles.css";
 import { Carousel as SwipeCarousel } from "@trendyol-js/react-carousel";
 import { HandySvg } from "handy-svg";
-// import iconSrc from "assets/icons/arrowLeftRounded.svg";
+import iconSrc from "assets/icon/arrowLeftRounded.svg";
 
 const employees = [
   {
@@ -137,12 +137,12 @@ const Carousel = () => {
         show={4}
         slide={1}
         swiping={true}
-        // leftArrow={
-        //   <HandySvg src={iconSrc} className="prev" height={24} width={24} />
-        // }
-        // rightArrow={
-        //   <HandySvg src={iconSrc} className="next" height={24} width={24} />
-        // }
+        leftArrow={
+          <HandySvg src={iconSrc} className="prev" height={24} width={24} />
+        }
+        rightArrow={
+          <HandySvg src={iconSrc} className="next" height={24} width={24} />
+        }
       >
         {employees.map((employee, index) => (
           <div

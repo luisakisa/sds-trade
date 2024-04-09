@@ -14,8 +14,10 @@
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-box-shadow: 0px 5px 15px rgb(219, 219, 219);
-margin-bottom: 20px;}
+  box-shadow: 0px 5px 15px rgb(219, 219, 219);
+  margin-bottom: 20px;
+  height: 65px;
+}
 
 nav {
   -webkit-box-align: center;
@@ -57,6 +59,10 @@ nav {
   display: flex;
 }
 
+.nav-link:hover {
+  border-bottom: 2px solid #2D4191; 
+}
+
 .nav-logo {
   font-family: "Montserrat-Bold", sans-serif;
   -webkit-box-align: center;
@@ -82,4 +88,9 @@ nav {
   display: flex;
   list-style: none;
   justify-content: space-between;
+}
+
+.user:hover {
+  cursor: pointer;
+  opacity: 0.5;
 }
