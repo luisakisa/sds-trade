@@ -61,7 +61,7 @@ function Header() {
               />
             </ul>
           ) : (
-            <ul className="user">
+            <ul className="user" onClick={() => navigate("/profile")}>
               <text style={{ marginRight: 5 }}>{email}</text>
               <HandySvg src={UserRoundedIcon} height={14} width={14} />
             </ul>

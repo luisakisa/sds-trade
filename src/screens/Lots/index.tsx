@@ -46,7 +46,7 @@ const columns: any = [
       const differenceInTime = todayDate.getTime() - endDate.getTime();
       const differenceInDays = Math.floor(
         differenceInTime / (1000 * 3600 * 24)
-      ); // Разница в днях
+      ); 
       return differenceInDays < 0 ? 0 : differenceInDays;
     },
   }),

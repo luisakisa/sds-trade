@@ -8,6 +8,13 @@ package "React Application" {
     [Lot Info Page]
     [Request Page]
 }
+package "Redux Store" {
+    [Auth Slice]
+    [Lots Slice]
+    [SupplierProperties Slice]
+    [SupplierSpecialistProperties Slice]
+    [AdministratorProperties Slice]
+}
 
 actor User
 actor "Поставщик" as Supplier
@@ -37,8 +44,8 @@ Administrator --> [Group Management Page]: views
 [About Company Page] --> [React Components]: renders contact info
 [Request Page] --> [React Components]: renders management request
 
-[React Components] --> [Redux Store]: dispatches actions
-[Redux Store] --> [Middleware]: applies middleware for handling actions
+[React Components] --> [Middleware]: dispatches actions
+[Middleware] --> [Redux Store]: dispatches actions
 [Middleware] --> [Backend API Client]: sends requests to backend
 [Backend API Client] --> [Backend API]: communicates with backend server
 

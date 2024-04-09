@@ -26,14 +26,6 @@ import { useNavigate } from "react-router-dom";
 
 const columnHelper = createColumnHelper<Position>();
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}.${month}.${year}`;
-};
-
 const getWidth = () => {
   return window.innerWidth;
 };
@@ -43,7 +35,6 @@ function LotInfo() {
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
   const [status, setStatus] = useState("В работе");
-  const [selectedPositions, setSelectedPositions] = useState<number[]>([]);
   const [summ, setSumm] = useState(0);
   const [data, setData] = useState(() => [...lots]);
   const [selectedRequests, setSelectedRequests] = useState<
@@ -107,9 +98,9 @@ function LotInfo() {
             </Table>
           ) : (
             "No offers"
-          ); // Display "No offers" if no matching requests
+          );
 
-        return content; // Display the requests content
+        return content; 
       },
     }),
   ];
@@ -147,8 +138,8 @@ function LotInfo() {
   };
 
   const columns: any[] = uniqueSuppliers.map((supplier) => ({
-    id: supplier, // Use supplier as unique identifier
-    header: () => supplier, // Display supplier name in header
+    id: supplier, 
+    header: () => supplier, 
     cell: () => {
       const matchingRequests = data[0].positions.flatMap((position) =>
         position.requests.filter((req) => req.supplier === supplier)
@@ -218,9 +209,9 @@ function LotInfo() {
           </Table>
         ) : (
           "No offers"
-        ); // Display "No offers" if no matching requests
+        ); 
 
-      return requestsContent; // Display the requests content
+      return requestsContent; 
     },
   }));
 
@@ -334,13 +325,8 @@ function LotInfo() {
         <div className="Sidebar">
           <ul>
             <li>
-              <a href="#" onClick={() => handleStatusChange("В работе")}>
-                В работе
-              </a>
-            </li>
-            <li>
-              <a href="#" onClick={() => handleStatusChange("Завершенные")}>
-                Завершенные
+              <a href="#" onClick={() => navigate("/lots")}>
+                Вернуться к лотам
               </a>
             </li>
             <li>
