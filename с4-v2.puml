@@ -18,6 +18,8 @@ actor "Специалист по снабжению" as Specialist
 User --> [Login Page]: views
 User --> [Contacts Page]: views
 User --> [About Company Page]: views
+Specialist --> [About Company Page]: views
+Supplier --> [About Company Page]: views
 Specialist --> [Contacts Page]: views
 Specialist --> [Lot Management Page]: views
 Supplier --> [Contacts Page]: views

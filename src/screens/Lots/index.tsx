@@ -176,7 +176,7 @@ function Lots() {
               </a>
             </li>
             <li>
-              <Button>Создать</Button>
+            <Button onClick={() => navigate("/createlot")}>Создать</Button>
             </li>
           </ul>
         </div>

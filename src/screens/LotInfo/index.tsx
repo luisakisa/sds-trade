@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import "./styles.css";
 import { Redux } from "store";
@@ -22,7 +22,7 @@ import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
 import { Lot, Position } from "store/lots/reducer";
 import { useParams } from "react-router";
-import { getValue } from "@testing-library/user-event/dist/utils";
+import { useNavigate } from "react-router-dom";
 
 const columnHelper = createColumnHelper<Position>();
 
@@ -42,10 +42,15 @@ function LotInfo() {
   const id = useParams<{ id: string }>().id;
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
-  const [status, setStatus] = React.useState("В работе");
-  const [selectedPosition, setSelectedPosition] = React.useState(0);
-  const [summ, setSumm] = React.useState(0);
-  const [data, setData] = React.useState(() => [...lots]);
+  const [status, setStatus] = useState("В работе");
+  const [selectedPositions, setSelectedPositions] = useState<number[]>([]);
+  const [summ, setSumm] = useState(0);
+  const [data, setData] = useState(() => [...lots]);
+  const [selectedRequests, setSelectedRequests] = useState<
+    Record<number, number>
+  >({});
+
+  const navigate = useNavigate();
 
   const getUniqueSuppliers = () => {
     const suppliers: Set<string> = new Set();
@@ -108,10 +113,38 @@ function LotInfo() {
       },
     }),
   ];
-
   const handleCheckboxChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {};
+    event: React.ChangeEvent<HTMLInputElement>,
+    positionId: number,
+    requestId: number
+  ) => {
+    const isChecked = event.target.checked;
+
+    const price = data[0].positions
+    .map((position) => position.requests.find((request) => request.id === requestId))
+    .find((request) => request !== undefined)?.price;
+ 
+    const quantity = data[0].positions
+    .map((position) => position.requests.find((request) => request.id === requestId))
+    .find((request) => request !== undefined)?.quantity;
+
+    if (isChecked) {
+      if (!selectedRequests[positionId]) {
+        price && quantity&& setSumm(summ + price * quantity);
+        setSelectedRequests({
+          ...selectedRequests,
+          [positionId]: requestId,
+        });
+      }
+    } else {
+      if (selectedRequests[positionId]) {
+        const updatedRequests = { ...selectedRequests };
+        delete updatedRequests[positionId];
+        setSelectedRequests(updatedRequests);
+        price && quantity && setSumm(summ - price * quantity);
+      }
+    }
+  };
 
   const columns: any[] = uniqueSuppliers.map((supplier) => ({
     id: supplier, // Use supplier as unique identifier
@@ -136,7 +169,45 @@ function LotInfo() {
             <TableBody>
               {matchingRequests.map((req, index) => (
                 <TableRow hover key={index}>
-                  <Checkbox onChange={handleCheckboxChange} />
+                  <Checkbox
+                    disabled={
+                      !!selectedRequests[
+                        lots[0].positions.find((position) =>
+                          position.requests.some(
+                            (request) => request.id === req.id
+                          )
+                        )?.id ?? 0
+                      ] && selectedRequests[lots[0].positions.find((position) =>
+                        position.requests.some(
+                          (request) => request.id === req.id
+                        )
+                      )?.id ?? 0] !== req.id
+                    }
+                    checked={
+                      !!selectedRequests[
+                        lots[0].positions.find((position) =>
+                          position.requests.some(
+                            (request) => request.id === req.id
+                          )
+                        )?.id ?? 0
+                      ]
+                    }
+                    onChange={(event) => {
+                      const matchingPosition = lots[0].positions.find(
+                        (position) =>
+                          position.requests.some(
+                            (request) => request.id === req.id
+                          )
+                      );
+                      if (matchingPosition) {
+                        handleCheckboxChange(
+                          event,
+                          matchingPosition.id,
+                          req.id
+                        );
+                      }
+                    }}
+                  />
                   <TableCell>{req.name}</TableCell>
                   <TableCell>{req.price}</TableCell>
                   <TableCell>{req.quantity}</TableCell>
@@ -205,7 +276,7 @@ function LotInfo() {
               width: "100%",
             }}
           >
-            <text>Выбрано позиций: {selectedPosition}</text>
+            <text>Выбрано позиций: {Object.keys(selectedRequests).length}</text>
             <text>Общая сумма: {summ}</text>
           </div>
         </div>
@@ -273,7 +344,7 @@ function LotInfo() {
               </a>
             </li>
             <li>
-              <Button>Создать</Button>
+              <Button onClick={() => navigate("/createlot")}>Создать</Button>
             </li>
           </ul>
         </div>
