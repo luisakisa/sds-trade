@@ -16,7 +16,7 @@
 
 .card {
   flex: 0 0 auto;
-  width: 200px;
+  max-width: 250px;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 16px;

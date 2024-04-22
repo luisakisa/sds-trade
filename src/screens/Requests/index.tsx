@@ -60,7 +60,7 @@ const formatDate = (dateString: string): string => {
   return `${day}.${month}.${year}`;
 };
 
-function Lots() {
+function Requests() {
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
   const [status, setStatus] = React.useState("В работе");
@@ -184,4 +184,4 @@ function Lots() {
   );
 }
 
-export default Lots;
+export default Requests;

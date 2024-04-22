@@ -1,11 +1,15 @@
 import React from "react";
 import Header from "../../components/Header";
 import "./styles.css";
-import { Redux } from "store";
-import { useSelector } from "react-redux";
 import { Button, TextField } from "@mui/material";
+import { Redux } from "store";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-function CreateLot() {
+function Profile() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   return (
     <div className="Profile">
       <Header></Header>
@@ -13,6 +17,9 @@ function CreateLot() {
         className="Content"
         style={{
           fontFamily: "Montserrat",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
         }}
       >
         <text
@@ -24,6 +31,21 @@ function CreateLot() {
         >
           Профиль
         </text>
+        <Button
+          variant="outlined"
+          style={{
+            justifySelf: "end",
+            color: "#2D4191",
+            borderColor: "#2D4191",
+            marginTop: 20,
+          }}
+          onClick={() => {
+            dispatch(Redux.Actions.Auth.logout());
+            navigate("/auth")
+          }}
+        >
+          Выйти
+        </Button>
         <div style={{ marginTop: 40 }}>
           <text
             style={{
@@ -34,17 +56,36 @@ function CreateLot() {
           >
             Редактирование профиля
           </text>
-          <TextField id="outlined-basic" label="Наименовние" />
-          <Button
-            variant="outlined"
-            style={{ justifySelf: "end", color: "#2D4191", borderColor: "#2D4191" }}
+          <div
+            style={{
+              marginTop: 20,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
           >
-            Сохранить
-          </Button>
+            <TextField
+              id="outlined-basic"
+              label="Пароль"
+              style={{ maxWidth: 200 }}
+            />
+            <Button
+              variant="outlined"
+              style={{
+                justifySelf: "end",
+                color: "#2D4191",
+                borderColor: "#2D4191",
+                marginTop: 20,
+              }}
+            >
+              Сохранить
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default CreateLot;
+export default Profile;

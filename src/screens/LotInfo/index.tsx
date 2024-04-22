@@ -23,6 +23,7 @@ import { UnknownAction } from "@reduxjs/toolkit";
 import { Lot, Position } from "store/lots/reducer";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
+import { Role } from "store/auth/reducer";
 
 const columnHelper = createColumnHelper<Position>();
 
@@ -40,6 +41,7 @@ function LotInfo() {
   const [selectedRequests, setSelectedRequests] = useState<
     Record<number, number>
   >({});
+  const { role } = useSelector(Redux.Selectors.AuthSelectors.getState);
 
   const navigate = useNavigate();
 
@@ -80,7 +82,7 @@ function LotInfo() {
           data[0].positions.length > 0 ? (
             <Table style={{ width: 300 }}>
               <TableHead style={{ paddingLeft: 20 }}>
-                <TableRow>
+                <TableRow style={{ height: 50 }}>
                   <TableCell>Наименование</TableCell>
                   <TableCell>руб./шт.</TableCell>
                   <TableCell> шт.</TableCell>
@@ -100,7 +102,7 @@ function LotInfo() {
             "No offers"
           );
 
-        return content; 
+        return content;
       },
     }),
   ];
@@ -112,16 +114,20 @@ function LotInfo() {
     const isChecked = event.target.checked;
 
     const price = data[0].positions
-    .map((position) => position.requests.find((request) => request.id === requestId))
-    .find((request) => request !== undefined)?.price;
- 
+      .map((position) =>
+        position.requests.find((request) => request.id === requestId)
+      )
+      .find((request) => request !== undefined)?.price;
+
     const quantity = data[0].positions
-    .map((position) => position.requests.find((request) => request.id === requestId))
-    .find((request) => request !== undefined)?.quantity;
+      .map((position) =>
+        position.requests.find((request) => request.id === requestId)
+      )
+      .find((request) => request !== undefined)?.quantity;
 
     if (isChecked) {
       if (!selectedRequests[positionId]) {
-        price && quantity&& setSumm(summ + price * quantity);
+        price && quantity && setSumm(summ + price * quantity);
         setSelectedRequests({
           ...selectedRequests,
           [positionId]: requestId,
@@ -138,8 +144,8 @@ function LotInfo() {
   };
 
   const columns: any[] = uniqueSuppliers.map((supplier) => ({
-    id: supplier, 
-    header: () => supplier, 
+    id: supplier,
+    header: () => supplier,
     cell: () => {
       const matchingRequests = data[0].positions.flatMap((position) =>
         position.requests.filter((req) => req.supplier === supplier)
@@ -149,8 +155,8 @@ function LotInfo() {
         matchingRequests.length > 0 ? (
           <Table style={{ width: 200 }}>
             <TableHead style={{ paddingLeft: 50 }}>
-              <TableRow>
-                <TableCell></TableCell>
+              <TableRow style={{ height: 50 }}>
+                {role === Role.SupplierSpecialist && <TableCell></TableCell>}
                 <TableCell>Наименование</TableCell>
                 <TableCell>руб./шт.</TableCell>
                 <TableCell> шт.</TableCell>
@@ -160,45 +166,50 @@ function LotInfo() {
             <TableBody>
               {matchingRequests.map((req, index) => (
                 <TableRow hover key={index}>
-                  <Checkbox
-                    disabled={
-                      !!selectedRequests[
-                        lots[0].positions.find((position) =>
-                          position.requests.some(
-                            (request) => request.id === req.id
-                          )
-                        )?.id ?? 0
-                      ] && selectedRequests[lots[0].positions.find((position) =>
-                        position.requests.some(
-                          (request) => request.id === req.id
-                        )
-                      )?.id ?? 0] !== req.id
-                    }
-                    checked={
-                      !!selectedRequests[
-                        lots[0].positions.find((position) =>
-                          position.requests.some(
-                            (request) => request.id === req.id
-                          )
-                        )?.id ?? 0
-                      ]
-                    }
-                    onChange={(event) => {
-                      const matchingPosition = lots[0].positions.find(
-                        (position) =>
-                          position.requests.some(
-                            (request) => request.id === req.id
-                          )
-                      );
-                      if (matchingPosition) {
-                        handleCheckboxChange(
-                          event,
-                          matchingPosition.id,
-                          req.id
-                        );
+                  {role === Role.SupplierSpecialist && (
+                    <Checkbox
+                      disabled={
+                        !!selectedRequests[
+                          lots[0].positions.find((position) =>
+                            position.requests.some(
+                              (request) => request.id === req.id
+                            )
+                          )?.id ?? 0
+                        ] &&
+                        selectedRequests[
+                          lots[0].positions.find((position) =>
+                            position.requests.some(
+                              (request) => request.id === req.id
+                            )
+                          )?.id ?? 0
+                        ] !== req.id
                       }
-                    }}
-                  />
+                      checked={
+                        !!selectedRequests[
+                          lots[0].positions.find((position) =>
+                            position.requests.some(
+                              (request) => request.id === req.id
+                            )
+                          )?.id ?? 0
+                        ]
+                      }
+                      onChange={(event) => {
+                        const matchingPosition = lots[0].positions.find(
+                          (position) =>
+                            position.requests.some(
+                              (request) => request.id === req.id
+                            )
+                        );
+                        if (matchingPosition) {
+                          handleCheckboxChange(
+                            event,
+                            matchingPosition.id,
+                            req.id
+                          );
+                        }
+                      }}
+                    />
+                  )}
                   <TableCell>{req.name}</TableCell>
                   <TableCell>{req.price}</TableCell>
                   <TableCell>{req.quantity}</TableCell>
@@ -209,9 +220,9 @@ function LotInfo() {
           </Table>
         ) : (
           "No offers"
-        ); 
+        );
 
-      return requestsContent; 
+      return requestsContent;
     },
   }));
 
@@ -223,8 +234,8 @@ function LotInfo() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus);
+  const handleCloseLot = () => {
+    setStatus("Завершен");
   };
 
   return (
@@ -280,7 +291,7 @@ function LotInfo() {
         >
           <Table
             className="table-lotsInfo"
-            style={{ border: "1px solid #ddd" }}
+            style={{ border: "1px solid #ddd", width: getWidth() - 200 }}
             padding="normal"
           >
             <TableHead>
@@ -321,7 +332,20 @@ function LotInfo() {
             </TableBody>
           </Table>
         </div>
-
+        {role === Role.SupplierSpecialist && (
+          <Button
+            disabled={
+              !(
+                Object.keys(selectedRequests).length ===
+                data[0].positions.length
+              )
+            }
+            variant="contained"
+            onClick={handleCloseLot}
+          >
+            Завершить лот
+          </Button>
+        )}
         <div className="Sidebar">
           <ul>
             <li>

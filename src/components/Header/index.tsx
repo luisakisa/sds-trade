@@ -6,13 +6,13 @@ import { useSelector } from "react-redux";
 import { Redux } from "store";
 import UserRoundedIcon from "assets/icon/userRounded.svg";
 import { HandySvg } from "handy-svg";
+import { Role } from "store/auth/reducer";
 
 function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, email, role } = useSelector(
     Redux.Selectors.AuthSelectors.getState
   );
-
 
   return (
     <header>
@@ -26,26 +26,46 @@ function Header() {
         </a>
         <nav>
           <ul className="nav">
-            <li className="nav-item">
-              <Link className="nav-link" to="/about">
-                О компании
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/contacts">
-                Контакты
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="">
-                Обратная связь
-              </Link>
-            </li>
-            {  <li className="nav-item">
-              <Link className="nav-link" to="/lots">
-                Лоты
-              </Link>
-            </li>}
+            {isAuthenticated && role == Role.Admin ? (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/about">
+                    О компании
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/about">
+                    О компании
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/contacts">
+                    Контакты
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/feedback">
+                    Обратная связь
+                  </Link>
+                </li>
+                {isAuthenticated && role == Role.SupplierSpecialist ? (
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/lots">
+                      Лоты
+                    </Link>
+                  </li>
+                ) : (
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/requests">
+                      Заявки
+                    </Link>
+                  </li>
+                )}
+              </>
+            )}
           </ul>
           {!isAuthenticated ? (
             <ul className="auth">

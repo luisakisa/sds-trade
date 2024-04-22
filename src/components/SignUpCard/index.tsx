@@ -176,7 +176,7 @@ const SignUpCard: React.FC = () => {
     <div className="sign-up-card">
       <h2>Регистрация</h2>
       <div style={{ marginBottom: 20 }}>
-        <label>Снабженец</label>
+        <label>Специалист по снабжению</label>
         <Switch onChange={toggleSwitch}></Switch>
         <label>Поставщик</label>
       </div>

@@ -12,6 +12,8 @@ import store, { persistor } from "store";
 import { PersistGate } from "redux-persist/integration/react";
 import Lots from "screens/Lots";
 import LotInfo from "screens/LotInfo";
+import Feedback from "screens/Feedback";
+import Requests from "screens/Requests";
 
 function App() {
   const router = createBrowserRouter([
@@ -50,6 +52,14 @@ function App() {
     {
       path: "/lot/:id",
       element: <LotInfo />,
+    },
+    {
+      path: "/feedback",
+      element: <Feedback />,
+    },
+    {
+      path: "/requests",
+      element: <Requests />,
     },
   ]);
 

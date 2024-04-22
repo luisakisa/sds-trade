@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { authMiddleware } from "store/middlewares";
 
-enum Role {
+export enum Role {
   Admin = "Admin",
   Supplier = "Supplier",
   SupplierSpecialist = "Supplier Specialist",
@@ -25,6 +25,12 @@ export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    logout(state) {
+      state.email = undefined;
+      state.isAuthenticated = false;
+      state.token = undefined;
+      state.role = undefined;
+    },
     setEmail(state, action: PayloadAction<string>) {
       state.email = action.payload;
     },
@@ -36,7 +42,7 @@ export const auth = createSlice({
       state.role = action.payload.role;
     });
 
-    builder.addCase(authMiddleware.rejected, (state, action) => {
+    builder.addCase(authMiddleware.rejected, (state) => {
       state.isAuthenticated = false;
       state.token = undefined;
     });
