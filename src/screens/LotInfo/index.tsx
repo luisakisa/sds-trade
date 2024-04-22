@@ -81,7 +81,7 @@ function LotInfo() {
         const content =
           data[0].positions.length > 0 ? (
             <Table style={{ width: 300 }}>
-              <TableHead style={{ paddingLeft: 20 }}>
+              <TableHead style={{ paddingLeft: 20, lineBreak: "auto" }}>
                 <TableRow style={{ height: 50 }}>
                   <TableCell>Наименование</TableCell>
                   <TableCell>руб./шт.</TableCell>
