@@ -6,6 +6,6 @@ on:
     branches:
       - dev
     paths:
-      - 'master/*'
+      - 'dev/*'
 ---
-**Ссылки**
+## Ссылки
