@@ -14,7 +14,7 @@ jobs:
       
       - name: Apply PR template
         run: |
-          if [ "$GITHUB_HEAD_REF" == "dev" ] && [ "$GITHUB_BASE_REF" == "main" ]; then
+          if [ "$GITHUB_HEAD_REF" == "dev" ] && [ "$GITHUB_BASE_REF" == "master" ]; then
             cp .github/PULL_REQUEST_TEMPLATE/pull_request_template.md .github/pull_request_template.md
           else
             rm -f .github/pull_request_template.md
