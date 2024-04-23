@@ -1,0 +1,29 @@
+name: Pull Request Template Selector
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  set_template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set template based on branch
+        run: |
+          if [[ ${{ github.head_ref }} == 'dev' ]]; then
+            echo "::set-output name=template::.github/pull_request_templates/dev_main.md"
+          else
+            echo "::set-output name=template::.github/pull_request_templates/default.md"
+          fi
+      - name: Create Pull Request with template
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "[Automated] Set Pull Request template"
+          title: ${{ github.event.pull_request.title }}
+          body: ${{ github.event.pull_request.body }}
+          branch: ${{ github.head_ref }}
+          base: ${{ github.base_ref }}
+          delete-branch: true
+          template: ${{ steps.set_template.outputs.template }}
