@@ -1,27 +1,21 @@
-name: Pull Request Template
+name: Apply PR Template for dev -> main
 
 on:
   pull_request:
     branches:
       - dev
-      - main
-    types:
-      - opened
-      - synchronize
-    paths:
-      - '.github/PULL_REQUEST_TEMPLATE.md'
 
 jobs:
-  create-pull-request-template:
+  apply_template:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Create Pull Request Template
+      
+      - name: Apply PR template
         run: |
-          template_file='.github/PULL_REQUEST_TEMPLATE.md'
-          if [ "${GITHUB_BASE_REF}" = "dev" ]; then
-            echo "# Dev to Main" > $template_file
-          elif [ "${GITHUB_BASE_REF}" = "main" ]; then
-            echo "# Main to Dev" > $template_file
+          if [ "$GITHUB_HEAD_REF" == "dev" ] && [ "$GITHUB_BASE_REF" == "main" ]; then
+            cp .github/PULL_REQUEST_TEMPLATE/pull_request_template.md .github/pull_request_template.md
+          else
+            rm -f .github/pull_request_template.md
           fi
