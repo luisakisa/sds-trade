@@ -1,7 +1,4 @@
 ---
-on:
-  pull_request:
-    branches:
-      - dev
+base: main source: dev
 ---
 ## Ссылки
