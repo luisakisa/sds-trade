@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Redux } from "store";
 import UserRoundedIcon from "assets/icon/userRounded.svg";
 import { HandySvg } from "handy-svg";
-import { Role } from "store/auth/reducer";
+import { Role } from "interfaces/auth";
 
 function Header() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ function Header() {
                     Обратная связь
                   </Link>
                 </li>
-                {isAuthenticated && role == Role.SupplierSpecialist ? (
+                {isAuthenticated && (role == Role.SupplierSpecialist ? (
                   <li className="nav-item">
                     <Link className="nav-link" to="/lots">
                       Лоты
@@ -68,7 +68,7 @@ function Header() {
                       Заявки
                     </Link>
                   </li>
-                )}
+                ))}
               </>
             )}
           </ul>

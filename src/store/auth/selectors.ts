@@ -1,5 +1,5 @@
+import { Auth } from 'interfaces/auth';
 import {RootState} from '../index';
-import {Auth} from './reducer';
 
 const getState = (state: RootState): Auth => state.auth;
 

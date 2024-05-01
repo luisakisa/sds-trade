@@ -13,8 +13,8 @@ import {
 } from "@tanstack/react-table";
 import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { Lot } from "store/lots/reducer";
 import { useNavigate } from "react-router-dom";
+import { Lot } from "interfaces/lots";
 
 const columnHelper = createColumnHelper<Lot>();
 
