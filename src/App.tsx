@@ -14,6 +14,7 @@ import Lots from "screens/Lots";
 import LotInfo from "screens/LotInfo";
 import Feedback from "screens/Feedback";
 import Requests from "screens/Requests";
+import ManageUsers from "screens/admin/ManageUsers";
 
 function App() {
   const router = createBrowserRouter([
@@ -60,6 +61,10 @@ function App() {
     {
       path: "/requests",
       element: <Requests />,
+    },
+    {
+      path: "/manageusers",
+      element: <ManageUsers />,
     },
   ]);
 

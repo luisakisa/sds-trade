@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./style.css";
 import Button from "../Button";
 import Switch from "@mui/material/Switch";
 import { signUp } from "api/signUp";
+import { Group } from "interfaces/groups";
+import { useDispatch, useSelector } from "react-redux";
+import { groupsMiddleware } from "store/middlewares";
+import { UnknownAction } from "redux";
+import { Redux } from "store";
 
 const SignUpCard: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -26,6 +31,20 @@ const SignUpCard: React.FC = () => {
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
+
+  const [groupsNames, setGroupsNames] = useState<string[]>([]);
+
+  const groups = useSelector(Redux.Selectors.GroupsSelectors.getState);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(groupsMiddleware() as unknown as UnknownAction);
+    if (groups?.length > 0) {
+      const formattedGroups = groups.map((group) => group.name);
+      setGroupsNames(formattedGroups);
+    }
+  }, [dispatch]);
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!checkPassword()) {
@@ -212,28 +231,28 @@ const SignUpCard: React.FC = () => {
               </span>
             )}
           </div>
-          <div className="form-group" style={{ maxWidth: 250 }}>
-            <label>Вид субъекта предпринимательства</label>
-            <input
-              className="input-sign-up"
-              type="text"
-              value={typeOfBusiness}
-              onChange={handleTypeOfBusinessChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Компания</label>
-            <input
-              className="input-sign-up"
-              type="text"
-              value={company}
-              onChange={handleCompanyChange}
-              required
-            />
-          </div>
           {isOn && (
             <>
+              <div className="form-group" style={{ maxWidth: 250 }}>
+                <label>Вид субъекта предпринимательства</label>
+                <input
+                  className="input-sign-up"
+                  type="text"
+                  value={typeOfBusiness}
+                  onChange={handleTypeOfBusinessChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Компания</label>
+                <input
+                  className="input-sign-up"
+                  type="text"
+                  value={company}
+                  onChange={handleCompanyChange}
+                  required
+                />
+              </div>
               <div className="form-group">
                 <label>Имя</label>
                 <input
@@ -245,22 +264,22 @@ const SignUpCard: React.FC = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Отчество</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={middleName}
-                  onChange={handleMiddleNameChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
                 <label>Фамилия</label>
                 <input
                   className="input-sign-up"
                   type="text"
                   value={lastName}
                   onChange={handleLastNameChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Отчество</label>
+                <input
+                  className="input-sign-up"
+                  type="text"
+                  value={middleName}
+                  onChange={handleMiddleNameChange}
                   required
                 />
               </div>

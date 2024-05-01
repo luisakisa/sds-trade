@@ -33,6 +33,11 @@ function Header() {
                     О компании
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/manageusers">
+                    Управление
+                  </Link>
+                </li>
               </>
             ) : (
               <>

@@ -5,7 +5,6 @@ import { Redux } from "store";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import {
-  ColumnDef,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -13,8 +12,8 @@ import {
 } from "@tanstack/react-table";
 import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { Lot } from "store/lots/reducer";
 import { useNavigate } from "react-router-dom";
+import { Lot } from "interfaces/lots";
 
 const columnHelper = createColumnHelper<Lot>();
 
@@ -69,7 +68,7 @@ function Lots() {
 
   useEffect(() => {
     dispatch(lotsMiddleware() as unknown as UnknownAction);
-    if (lots && lots.length > 0) {
+    if (lots?.length > 0) {
       const formattedLots = lots.map((lot) => ({
         ...lot,
         startDate: formatDate(lot.startDate),

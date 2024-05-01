@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { signIn } from "api/auth";
+import { getGroups } from "api/groups";
 import { getLots } from "api/lots";
 
 export const authMiddleware = createAsyncThunk(
@@ -21,6 +22,17 @@ export const lotsMiddleware = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getLots();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const groupsMiddleware = createAsyncThunk(
+  "groups",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getGroups();
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message);

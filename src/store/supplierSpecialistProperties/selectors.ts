@@ -1,8 +1,8 @@
-// import {RootState} from '../index';
-// import {SupplierSpProperties, supplierProperties} from './reducer';
+import { SupplierSpecialist } from 'interfaces/signUp';
+import {RootState} from '../index';
 
-// const getState = (state: RootState): SupplierProperties => state.supplierProperties;
+const getState = (state: RootState): SupplierSpecialist => state.supplierProperties;
 
-// export const supplierPropertiesSelectors = {
-//   getState,
-// };
+export const supplierPropertiesSelectors = {
+  getState,
+};

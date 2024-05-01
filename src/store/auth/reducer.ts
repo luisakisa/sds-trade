@@ -1,18 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { Auth } from "interfaces/auth";
 import { authMiddleware } from "store/middlewares";
-
-export enum Role {
-  Admin = "Admin",
-  Supplier = "Supplier",
-  SupplierSpecialist = "Supplier Specialist",
-}
-
-export interface Auth {
-  isAuthenticated: boolean;
-  token: string | undefined;
-  role: Role.Admin | Role.Supplier | Role.SupplierSpecialist | undefined;
-  email: string | undefined;
-}
 
 const initialState: Auth = {
   isAuthenticated: false,

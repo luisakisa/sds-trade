@@ -1,5 +1,6 @@
+import { SupplierProperties } from 'interfaces/signUp';
 import {RootState} from '../index';
-import {SupplierProperties, supplierProperties} from './reducer';
+import { supplierProperties} from './reducer';
 
 const getState = (state: RootState): SupplierProperties => state.supplierProperties;
 

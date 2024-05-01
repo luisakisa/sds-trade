@@ -20,10 +20,10 @@ import {
 } from "@tanstack/react-table";
 import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { Lot, Position } from "store/lots/reducer";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { Role } from "store/auth/reducer";
+import { Position, Lot } from "interfaces/lots";
+import { Role } from "interfaces/auth";
 
 const columnHelper = createColumnHelper<Position>();
 

@@ -1,35 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface SupplierProperties {
-  email: string;
-  password: string;
-  type_of_business: number;
-  company: string;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  phone_number?: string | null;
-  region_or_address: string;
-  NDS: boolean;
-  site?: string | null;
-  INN: number;
-  KPP: number;
-}
+import { SupplierProperties } from "interfaces/signUp";
 
 const initialState: SupplierProperties = {
-  email: '',
-  password: '',
+  email: "",
+  password: "",
   type_of_business: 0,
-  company: '',
-  first_name: '',
-  middle_name: '',
-  last_name: '',
+  company: "",
+  first_name: "",
+  middle_name: "",
+  last_name: "",
   phone_number: null,
-  region_or_address: '',
+  region_or_address: "",
   NDS: false,
   site: null,
   INN: 0,
   KPP: 0,
+  groupEtsId: [],
 };
 
 export const supplierProperties = createSlice({
@@ -75,7 +61,8 @@ export const supplierProperties = createSlice({
     setKPP(state, action: PayloadAction<number>) {
       state.KPP = action.payload;
     },
+    setGroupEtsId(state, action: PayloadAction<number[]>) {
+      state.groupEtsId = action.payload;
+    },
   },
 });
-
-
