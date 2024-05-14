@@ -67,9 +67,7 @@ function LotInfo() {
           return lot.id === Number(id);
         });
         setData(formattedLots);
-        setStatus(
-          formattedLots[0].status === "active" ? "В работе" : "Завершен"
-        );
+        setStatus(formattedLots[0].status);
       }
     }
   }, [dispatch]);
@@ -90,7 +88,7 @@ function LotInfo() {
               </TableHead>
               <TableBody>
                 {data[0].positions.map((req, index) => (
-                  <TableRow hover key={index}>
+                  <TableRow hover key={index} style={{ height: 50 }}>
                     <TableCell>{req.name}</TableCell>
                     <TableCell>{req.price}</TableCell>
                     <TableCell>{req.quantity}</TableCell>
@@ -165,7 +163,7 @@ function LotInfo() {
             </TableHead>
             <TableBody>
               {matchingRequests.map((req, index) => (
-                <TableRow hover key={index}>
+                <TableRow hover key={index} style={{ height: 50 }}>
                   {role === Role.SupplierSpecialist && (
                     <Checkbox
                       disabled={
@@ -236,6 +234,7 @@ function LotInfo() {
 
   const handleCloseLot = () => {
     setStatus("Завершен");
+    dispatch(Redux.Actions.Lots.completeLot(Number(id)));
   };
 
   return (

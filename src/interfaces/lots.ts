@@ -30,3 +30,30 @@ export interface Request {
     paymentType: string;
     comment: string;
   }
+
+    export interface Lot_new {
+    canOwnWay: boolean;
+    closeDate: string;
+    groupEts: string;
+    id: number;
+    lotCreator: string;
+    lotFiles: undefined;
+    name: string;
+    openDate: string;
+    rules: Rules;
+    status: string;
+    positions: Position_new[];
+  }
+   export interface Rules{
+    comment: string;
+    paymentMethod: string;
+    shippingMethod: string;
+  }
+
+  export interface Position_new {
+    id: number;
+    itemName: string;
+    count: number;
+    priceForOne: number;
+    unitName: string;
+  }

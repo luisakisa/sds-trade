@@ -14,10 +14,12 @@ import Lots from "screens/Lots";
 import LotInfo from "screens/LotInfo";
 import Feedback from "screens/Feedback";
 import Requests from "screens/Requests";
-import ManageUsers from "screens/admin/ManageUsers";
+import ManageUsers from "screens/admin/Manage";
 import Users from "screens/admin/Users";
-import User from "screens/admin/User";
+import User from "screens/admin/ChangeUser";
 import CreateGroup from "screens/admin/CreateGroup";
+import ChangeGroup from "screens/admin/ChangeGroup";
+import Groups from "screens/admin/Groups";
 
 function App() {
   const router = createBrowserRouter([
@@ -80,6 +82,14 @@ function App() {
     {
       path: "/creategroup",
       element: <CreateGroup/>,
+    },
+    {
+      path: "/changegroup/:id",
+      element: <ChangeGroup/>,
+    },
+    {
+      path: "/groups",
+      element: <Groups/>,
     },
   ]);
 

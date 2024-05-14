@@ -28,11 +28,14 @@ export const auth = createSlice({
       state.isAuthenticated = true;
       state.token = action.payload.token;
       state.role = action.payload.role;
+      state.email = action.payload.email;
     });
 
     builder.addCase(authMiddleware.rejected, (state) => {
       state.isAuthenticated = false;
       state.token = undefined;
+      state.email = undefined;
+      state.role = undefined;
     });
   },
 });

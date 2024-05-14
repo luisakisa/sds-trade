@@ -35,10 +35,10 @@ function Profile() {
           variant="outlined"
           style={{
             justifySelf: "end",
-            color: "#2D4191",
-            borderColor: "#2D4191",
             marginTop: 20,
+          
           }}
+          color="error"
           onClick={() => {
             dispatch(Redux.Actions.Auth.logout());
             navigate("/auth")

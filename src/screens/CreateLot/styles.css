@@ -1,3 +1,33 @@
-.Content{
-    padding: 0 200px;
+.Content {
+  padding: 0 200px;
 }
+
+.add-row-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-row-button:hover {
+  background-color: #0056b3; /* Цвет фона при наведении */
+}
+
+.plus-icon {
+}
+
+.add-row-label {
+  position: relative;
+  left: 10px;
+  width: 150px;
+  font-size: small;
+  align-self: center;
+}
+
+  

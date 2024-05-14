@@ -3,7 +3,14 @@ import Header from "../../components/Header";
 import "./styles.css";
 import { Redux } from "store";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import {
   createColumnHelper,
   flexRender,
@@ -16,7 +23,9 @@ import { useNavigate } from "react-router-dom";
 import { Lot } from "interfaces/lots";
 
 const columnHelper = createColumnHelper<Lot>();
-
+const getWidth = () => {
+  return window.innerWidth;
+};
 const columns: any = [
   columnHelper.accessor("id", {
     header: () => "№ Лота",
@@ -42,10 +51,14 @@ const columns: any = [
       const endDate = new Date(
         row.original.endDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
       );
-      const differenceInTime = todayDate.getTime() - endDate.getTime();
-      const differenceInDays = Math.floor(
-        differenceInTime / (1000 * 3600 * 24)
-      ); 
+
+      // Вычисляем разницу в миллисекундах
+      const differenceInTime = endDate.getTime() - todayDate.getTime();
+
+      // Вычисляем разницу в днях
+      const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+      // Если разница отрицательная, возвращаем 0, иначе возвращаем разницу
       return differenceInDays < 0 ? 0 : differenceInDays;
     },
   }),
@@ -81,9 +94,7 @@ function Lots() {
   useEffect(() => {
     if (lots !== data) {
       const filtered = lots.filter((lot) => {
-        return status === "В работе"
-          ? lot.status === "active"
-          : lot.status !== "active";
+        return status === lot.status
       });
       const formattedLots = filtered.map((lot) => ({
         ...lot,
@@ -123,19 +134,22 @@ function Lots() {
             height: 40,
             marginLeft: 200,
             marginTop: -20,
-            justifyContent:'center',
+            justifyContent: "center",
             alignItems: "center",
             display: "flex",
             backgroundColor: "#f7f7f7",
-            border: "1px solid #ddd",
+            border: "2px solid #ddd",
           }}
         >
           <text>Статус лота: {status}</text>
         </div>
-        <Table className="table-lotsInfo" style={{ marginLeft: 200, width: "86%" }}>
+        <Table
+          className="table-lotsInfo"
+          style={{ marginLeft: 200, width: getWidth() - 200 }}
+        >
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} style={{border: "1px solid #ddd"}}>
                 {headerGroup.headers.map((header) => (
                   <TableCell key={header.id}>
                     {header.isPlaceholder
@@ -151,7 +165,14 @@ function Lots() {
           </TableHead>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow hover key={row.id} onClick={() => {navigate(`/lot/${row.original.id}`)}}>
+              <TableRow
+                hover
+                key={row.id}
+                onClick={() => {
+                  navigate(`/lot/${row.original.id}`);
+                }}
+                style={{border: "1px solid #ddd"}}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -161,11 +182,16 @@ function Lots() {
             ))}
           </TableBody>
         </Table>
-        <div className="Sidebar">
+        <div className="Sidebar"  style={{border: "1px solid #ddd"}}>
           <ul>
             <li>
               <a href="#" onClick={() => handleStatusChange("В работе")}>
                 В работе
+              </a>
+            </li>
+            <li>
+              <a href="#" onClick={() => handleStatusChange("На оформлении")}>
+                На оформлении
               </a>
             </li>
             <li>
@@ -174,7 +200,7 @@ function Lots() {
               </a>
             </li>
             <li>
-            <Button onClick={() => navigate("/createlot")}>Создать</Button>
+              <Button onClick={() => navigate("/createlot")}>Создать</Button>
             </li>
           </ul>
         </div>

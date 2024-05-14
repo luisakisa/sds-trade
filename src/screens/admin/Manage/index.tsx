@@ -48,9 +48,8 @@ function ManageUsers() {
           aria-label="Basic button group"
         >
           <Button variant="text" onClick={() => navigate("/users")}>
-            Редактировать пользователя
+            Редактировать пользователей
           </Button>
-          <Button variant="text">Добавить пользователя</Button>
         </ButtonGroup>
 
         <label
@@ -72,10 +71,10 @@ function ManageUsers() {
           aria-label="Basic button group"
         >
           <Button variant="text" onClick={()=>navigate("/creategroup")}>Создать новую группу для лота</Button>
-          <Button variant="text">Редактировать группы</Button>
+          <Button variant="text"  onClick={()=>navigate("/groups")}>Редактировать группы</Button>
         </ButtonGroup>
       </div>
-    </div>
+    </div>  
   );
 }
 

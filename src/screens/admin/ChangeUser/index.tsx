@@ -3,16 +3,10 @@ import Header from "components/Header";
 import "./styles.css";
 import {
   Button,
-  ButtonGroup,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   TextField,
 } from "@mui/material";
-import iconSrc from "assets/icon/arrowLeftRounded.svg";
-import { HandySvg } from "handy-svg";
-import { getUsers, updateUser } from "api/users";
+import { deleteUser, getUsers, updateUser } from "api/users";
 import { useParams } from "react-router-dom";
 
 function User() {
@@ -58,6 +52,20 @@ function User() {
       }
     } catch (error: any) {
       console.error("Ошибка при отправке данных на сервер:", error.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await deleteUser(parseInt(id ?? ''));
+
+      if (response.ok) {
+        console.log("Данные успешно удалены на сервер");
+      } else {
+        console.error("Ошибка при удалении данных на сервер");
+      }
+    } catch (error: any) {
+      console.error("Ошибка при удалении данных на сервер:", error.message);
     }
   };
 
@@ -191,6 +199,9 @@ function User() {
         </List>
         <Button variant="contained" onClick={handleSubmit}>
             Сохранить
+          </Button>
+        <Button variant="contained" onClick={handleDelete} style={{ marginTop: 20, backgroundColor: "#f56464" }}>
+            Удалить пользователя
           </Button>
       </div>
     </div>

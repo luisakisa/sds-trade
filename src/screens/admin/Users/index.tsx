@@ -2,15 +2,10 @@ import React, { useEffect, useState } from "react";
 import Header from "components/Header";
 import "./styles.css";
 import {
-  Button,
-  ButtonGroup,
   List,
-  ListItem,
   ListItemButton,
   ListItemText,
 } from "@mui/material";
-import iconSrc from "assets/icon/arrowLeftRounded.svg";
-import { HandySvg } from "handy-svg";
 import { getUsers } from "api/users";
 import { useNavigate } from "react-router-dom";
 
