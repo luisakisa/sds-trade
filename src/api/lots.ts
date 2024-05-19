@@ -1,7 +1,8 @@
 import axios from "axios";
+import { DOMAIN } from "configs/path";
 import { Lot } from "interfaces/lots";
 
-const API_URL = "http://localhost:3003/lots";
+const API_URL = DOMAIN + "/lots";
 
 export const getLots = async () => {
   try {

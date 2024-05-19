@@ -1,6 +1,7 @@
 import axios from "axios";
+import { DOMAIN } from "configs/path";
 
-const API_URL = "http://localhost:3003/auth/signup";
+const API_URL = DOMAIN + "/auth/signup";
 
 interface UserData {
     firstName?: string;

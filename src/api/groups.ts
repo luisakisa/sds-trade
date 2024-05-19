@@ -1,7 +1,8 @@
 import axios from "axios";
+import { DOMAIN } from "configs/path";
 import { Group } from "interfaces/groups";
 
-const API_URL = "http://localhost:3003/groups";
+const API_URL = DOMAIN + "/groups";
 
 export const getGroups = async () => {
   try {

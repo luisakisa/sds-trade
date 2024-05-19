@@ -1,6 +1,7 @@
 import axios from "axios";
+import { DOMAIN } from "configs/path";
 
-const API_URL = "http://localhost:3003/auth/signin";
+const API_URL = DOMAIN + "/auth/signin";
 
 export const signIn = async (login: string, password: string) => {
   try {
