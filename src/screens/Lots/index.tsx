@@ -35,25 +35,25 @@ const columns: any = [
     header: () => "Название",
     cell: (info) => info.renderValue(),
   }),
-  columnHelper.accessor("startDate", {
+  columnHelper.accessor("openDate", {
     header: () => "Дата открытия",
     cell: (info) => info.renderValue(),
   }),
-  columnHelper.accessor("endDate", {
+  columnHelper.accessor("closeDate", {
     header: () => "Дата закрытия",
     cell: (info) => info.renderValue(),
   }),
-  columnHelper.accessor("paymentType", {
+  columnHelper.accessor("rules.paymentMethod", {
     header: () => "Дней до конца",
     cell: (info) => {
       const { row } = info;
       const todayDate = new Date();
-      const endDate = new Date(
-        row.original.endDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
+      const closeDate = new Date(
+        row.original.closeDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
       );
 
       // Вычисляем разницу в миллисекундах
-      const differenceInTime = endDate.getTime() - todayDate.getTime();
+      const differenceInTime = closeDate.getTime() - todayDate.getTime();
 
       // Вычисляем разницу в днях
       const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
@@ -84,8 +84,8 @@ function Lots() {
     if (lots?.length > 0) {
       const formattedLots = lots.map((lot) => ({
         ...lot,
-        startDate: formatDate(lot.startDate),
-        endDate: formatDate(lot.endDate),
+        openDate: formatDate(lot.openDate),
+        closeDate: formatDate(lot.closeDate),
       }));
       setData(formattedLots);
     }
@@ -98,8 +98,8 @@ function Lots() {
       });
       const formattedLots = filtered.map((lot) => ({
         ...lot,
-        startDate: formatDate(lot.startDate),
-        endDate: formatDate(lot.endDate),
+        openDate: formatDate(lot.openDate),
+        closeDate: formatDate(lot.closeDate),
       }));
       setData(formattedLots);
     }

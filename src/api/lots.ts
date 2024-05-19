@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Lot, Lot_new } from "interfaces/lots";
+import { Lot } from "interfaces/lots";
 
 const API_URL = "http://localhost:3003/lots";
 
@@ -13,7 +13,7 @@ export const getLots = async () => {
   }
 };
 
-export const addLot = async (lot: Lot_new) => {
+export const addLot = async (lot: Lot) => {
   try {
     const response = await axios.post(API_URL, lot, {
       headers: {

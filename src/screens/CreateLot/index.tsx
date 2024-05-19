@@ -109,6 +109,7 @@ function CreateLot() {
           priceForOne: Number(row.inputs[1]),
           count: Number(row.inputs[2]),
           unitName: row.inputs[3],
+          requests:[] 
         })),
         canOwnWay: false,
         lotCreator: email ?? "",

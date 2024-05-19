@@ -73,6 +73,26 @@ function ManageUsers() {
           <Button variant="text" onClick={()=>navigate("/creategroup")}>Создать новую группу для лота</Button>
           <Button variant="text"  onClick={()=>navigate("/groups")}>Редактировать группы</Button>
         </ButtonGroup>
+        <label
+          style={{
+            fontSize: 26,
+            fontWeight: 500,
+            color: "#2B2A29",
+            textAlign: "center",
+            marginBottom: 20,
+            marginTop: 20,
+          }}
+        >
+          Лоты:
+        </label>
+        <ButtonGroup
+          size="large"
+          orientation="vertical"
+          variant="contained"
+          aria-label="Basic button group"
+        >
+          <Button variant="text" onClick={()=>navigate("/deletelots")}>Удалить лот</Button>
+        </ButtonGroup>
       </div>
     </div>  
   );

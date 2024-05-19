@@ -89,9 +89,9 @@ function LotInfo() {
               <TableBody>
                 {data[0].positions.map((req, index) => (
                   <TableRow hover key={index} style={{ height: 50 }}>
-                    <TableCell>{req.name}</TableCell>
-                    <TableCell>{req.price}</TableCell>
-                    <TableCell>{req.quantity}</TableCell>
+                    <TableCell>{req.itemName}</TableCell>
+                    <TableCell>{req.priceForOne}</TableCell>
+                    <TableCell>{req.count}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -117,7 +117,7 @@ function LotInfo() {
       )
       .find((request) => request !== undefined)?.price;
 
-    const quantity = data[0].positions
+    const count = data[0].positions
       .map((position) =>
         position.requests.find((request) => request.id === requestId)
       )
@@ -125,7 +125,7 @@ function LotInfo() {
 
     if (isChecked) {
       if (!selectedRequests[positionId]) {
-        price && quantity && setSumm(summ + price * quantity);
+        price && count && setSumm(summ + price * count);
         setSelectedRequests({
           ...selectedRequests,
           [positionId]: requestId,
@@ -136,7 +136,7 @@ function LotInfo() {
         const updatedRequests = { ...selectedRequests };
         delete updatedRequests[positionId];
         setSelectedRequests(updatedRequests);
-        price && quantity && setSumm(summ - price * quantity);
+        price && count && setSumm(summ - price * count);
       }
     }
   };

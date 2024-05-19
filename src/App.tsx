@@ -20,6 +20,7 @@ import User from "screens/admin/ChangeUser";
 import CreateGroup from "screens/admin/CreateGroup";
 import ChangeGroup from "screens/admin/ChangeGroup";
 import Groups from "screens/admin/Groups";
+import DeleteLots from "screens/admin/DeleteLots";
 
 function App() {
   const router = createBrowserRouter([
@@ -90,6 +91,10 @@ function App() {
     {
       path: "/groups",
       element: <Groups/>,
+    },
+    {
+      path: "/deletelots",
+      element: <DeleteLots/>,
     },
   ]);
 
