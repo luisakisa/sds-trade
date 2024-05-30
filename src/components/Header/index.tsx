@@ -1,7 +1,7 @@
 import React from "react";
 import "./style.css";
 import Button from "../Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Redux } from "store";
 import UserRoundedIcon from "assets/icon/userRounded.svg";
@@ -10,9 +10,14 @@ import { Role } from "interfaces/auth";
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, email, role } = useSelector(
     Redux.Selectors.AuthSelectors.getState
   );
+
+  const getNavLinkClass = (path: string) => {
+    return location.pathname === path ? "nav-link active" : "nav-link";
+  };
 
   return (
     <header>
@@ -26,15 +31,18 @@ function Header() {
         </a>
         <nav>
           <ul className="nav">
-            {isAuthenticated && role == Role.Admin ? (
+            {isAuthenticated && role === Role.Admin ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/about">
+                  <Link className={getNavLinkClass("/about")} to="/about">
                     О компании
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/manageusers">
+                  <Link
+                    className={getNavLinkClass("/manageusers")}
+                    to="/manageusers"
+                  >
                     Управление
                   </Link>
                 </li>
@@ -42,33 +50,47 @@ function Header() {
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/about">
+                  <Link className={getNavLinkClass("/about")} to="/about">
                     О компании
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/contacts">
+                  <Link className={getNavLinkClass("/contacts")} to="/contacts">
                     Контакты
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/feedback">
+                  <Link className={getNavLinkClass("/feedback")} to="/feedback">
                     Обратная связь
                   </Link>
                 </li>
-                {isAuthenticated && (role == Role.SupplierSpecialist ? (
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/lots">
-                      Лоты
-                    </Link>
-                  </li>
-                ) : (
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/requests">
-                      Заявки
-                    </Link>
-                  </li>
-                ))}
+                {isAuthenticated &&
+                  (role === Role.SupplierSpecialist ? (
+                    <li className="nav-item">
+                      <Link className={getNavLinkClass("/lots")} to="/lots">
+                        Лоты
+                      </Link>
+                    </li>
+                  ) : (
+                    <>
+                      <li className="nav-item">
+                        <Link
+                          className={getNavLinkClass("/supplier/lotsgroups")}
+                          to="/supplier/lotsgroups"
+                        >
+                          Лоты
+                        </Link>
+                      </li>
+                      <li className="nav-item">
+                        <Link
+                          className={getNavLinkClass("/requests")}
+                          to="/requests"
+                        >
+                          Мои заявки
+                        </Link>
+                      </li>
+                    </>
+                  ))}
               </>
             )}
           </ul>
@@ -87,7 +109,7 @@ function Header() {
             </ul>
           ) : (
             <ul className="user" onClick={() => navigate("/profile")}>
-              <text style={{ marginRight: 5 }}>{email}</text>
+              <span style={{ marginRight: 5 }}>{email}</span>
               <HandySvg src={UserRoundedIcon} height={14} width={14} />
             </ul>
           )}

@@ -22,6 +22,7 @@ import iconSrc from "assets/icon/plus.svg";
 import { nanoid } from "@reduxjs/toolkit";
 import { addLot } from "api/lots";
 import { useSelector } from "react-redux";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { Redux } from "store";
 
 function CreateLot() {
@@ -33,6 +34,7 @@ function CreateLot() {
     { id: number; inputs: string[] }[]
   >([]);
   const [selectedGroup, setSelectedGroup] = useState<string>("");
+  const [selectedGroupId, setSelectedGroupId] = useState<number>(2);
   const [comment, setComment] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -90,31 +92,37 @@ function CreateLot() {
     );
   };
 
+  const handleRemoveRow = (rowId: number) => {
+    setInputRows(inputRows.filter((row) => row.id !== rowId));
+  };
+
   const handleSubmit = async () => {
     try {
       const response = await addLot({
-        id: Number(nanoid()),
-        name,
-        groupEts: selectedGroup,
-        openDate: startDate,
+        canOwnWay: true,
         closeDate: endDate,
-        rules: {
-          comment,
-          shippingMethod: deliveryMethod,
-          paymentMethod,
-        },
+        groupEtsId: selectedGroupId,
+        lotCreatorId: 1,
+        lotFiles: [
+          {
+            lotId: 1,
+            path: "1/1",
+          },
+        ],
+        name,
+        openDate: startDate,
         positions: inputRows.map((row) => ({
-          id: Number(nanoid()),
+          count: Number(row.inputs[2]),
           itemName: row.inputs[0],
           priceForOne: Number(row.inputs[1]),
-          count: Number(row.inputs[2]),
           unitName: row.inputs[3],
-          requests:[] 
         })),
-        canOwnWay: false,
-        lotCreator: email ?? "",
-        lotFiles: undefined,
-        status: "На оформлении",
+        rules: {
+          comment,
+          paymentMethodId: 1,
+          shippingMethodId: 1,
+        },
+        statusId: 1,
       });
 
       if (!response.ok) {
@@ -131,15 +139,11 @@ function CreateLot() {
       <Header />
       <div
         className="content-contacts"
-        style={{ paddingInline: 200, fontFamily: "Montserrat", marginTop: 50 }}
+        style={{ paddingInline: 200, fontFamily: "Montserrat", marginTop: 20 }}
       >
         <text style={{ fontSize: 46, fontWeight: 700, color: "#2B2A29" }}>
           Создание лота
         </text>
-        <br />
-        <br />
-        <br />
-        <br />
       </div>
       <div className="Content" style={{ fontFamily: "Montserrat" }}>
         <List sx={{ width: "100%" }}>
@@ -188,14 +192,22 @@ function CreateLot() {
             </Select>
           </FormControl>
           <br />
+          <br />
           <label>Общая информация: </label>
           <br />
           <br />
-          <TextField
-            id="outlined-basic"
-            label="Комментарий"
-            style={{ marginBottom: 30, marginRight: 30, width: "100%" }}
-            size="medium"
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Комментарий"
+            style={{
+              marginBottom: 30,
+              marginRight: 30,
+              width: "100%",
+              fontFamily: "Montserrat",
+              fontSize: 16,
+              padding: 10,
+              boxSizing: "border-box",
+            }}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
@@ -272,8 +284,16 @@ function CreateLot() {
                   size="small"
                 />
               ))}
+              <Button
+                variant="contained"
+                onClick={() => handleRemoveRow(row.id)}
+                style={{ marginBottom: 30, marginRight: 30, backgroundColor:"#f56464" }}
+              >
+                Удалить
+              </Button>
             </div>
           ))}
+
           <div
             style={{
               width: "100%",

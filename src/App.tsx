@@ -21,6 +21,9 @@ import CreateGroup from "screens/admin/CreateGroup";
 import ChangeGroup from "screens/admin/ChangeGroup";
 import Groups from "screens/admin/Groups";
 import DeleteLots from "screens/admin/DeleteLots";
+import LotsGroups from "screens/supplier/Groups";
+import GroupLots from "screens/supplier/GroupLots";
+import LotRequest from "screens/supplier/LotInfo";
 
 function App() {
   const router = createBrowserRouter([
@@ -96,6 +99,18 @@ function App() {
       path: "/deletelots",
       element: <DeleteLots/>,
     },
+    {
+      path: "/supplier/lotsgroups",
+      element: <LotsGroups/>,
+    },
+    {
+      path: "/supplier/grouplots/:id",
+      element: <GroupLots/>,
+    },
+    {
+      path:"/supplier/lot/:id",
+      element: <LotRequest/>,
+    }
   ]);
 
   return (

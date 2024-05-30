@@ -1,48 +1,51 @@
 .carousel-container {
-  overflow: hidden;
-  align-self: center;
-  display: flex;
-  margin-top: 60px;
-  padding: 0 200px;
-  margin-bottom: 100%;
-  justify-content: 'space-between';
-
+    overflow: hidden;
+    align-self: center;
+    display: flex;
+    margin-top: 60px;
+    justify-content: 'space-between';
+    flex: 1;
+    margin-bottom: 200;
+    width: 100%;
 }
 
 .carousel {
-  display: flex;
-  justify-content: 'space-between';
+    display: flex;
+    overflow-x: auto;
+    justify-content: 'space-between';
+    gap: 20px;
+    flex: 1
 }
 
 .card {
-  flex: 0 0 auto;
-  max-width: 250px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 16px;
-  height: 300px;
-  background-color: #ffffff;
-  margin-bottom: 60px;
+    flex: 1;
+    max-width: 250px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    height: 300px;
+    background-color: #ffffff;
+    margin-bottom: 60px;
 }
 
-.prev{
-  position: absolute;
-  top: 95%;
-  transform: translateY(-60%);
-  color: #2d4191;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
+.prev {
+    position: absolute;
+    top: 95%;
+    transform: translateY(-60%);
+    color: #2d4191;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
 }
 
 .next {
-  right: 0;
-  position: absolute;
-  top: 90%;
-  transform: translateY(-60%);
-  color: #2d4191;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-  transform: rotateZ(180deg);
+    right: 0;
+    position: absolute;
+    top: 90%;
+    transform: translateY(-60%);
+    color: #2d4191;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+    transform: rotateZ(180deg);
 }

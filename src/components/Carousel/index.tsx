@@ -134,8 +134,8 @@ const Carousel = () => {
     <div className="carousel-container">
       <SwipeCarousel
         className="carousel"
-        show={4}
-        slide={1}
+        show={3}
+        slide={3}
         swiping={true}
         leftArrow={
           <HandySvg src={iconSrc} className="prev" height={24} width={24} />

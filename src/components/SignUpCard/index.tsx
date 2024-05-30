@@ -124,18 +124,16 @@ const SignUpCard: React.FC = () => {
   const checkPassword = (): boolean => {
     const minLength = 8;
     const categories = [
-      /[A-Z]/, // Большие буквы
-      /[a-z]/, // Прописные буквы
-      /\d/, // Цифры
-      /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, // Специальные символы
+      /[A-Z]/, 
+      /[a-z]/, 
+      /\d/,
+      /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
     ];
 
-    // Проверяем, соответствует ли длина пароля минимальному значению
     if (password.length < minLength) {
       return false;
     }
 
-    // Проверяем, содержит ли пароль минимум 3 категории символов
     const matchedCategories = categories.filter((category) =>
       category.test(password)
     );

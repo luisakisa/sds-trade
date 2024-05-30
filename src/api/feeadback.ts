@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DOMAIN } from "configs/path";
+import { DOMAIN } from "api/configs/path";
 
 const API_URL = DOMAIN + "/feedback";
 

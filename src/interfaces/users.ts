@@ -16,6 +16,8 @@ interface User {
     inn: number;
     kpp: number;
     isApproved: boolean;
+    groupEtsId: number[];
+    groupEts: string[];
   }
   
   interface SupplySpecialistFullData extends User {

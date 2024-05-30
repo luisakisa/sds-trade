@@ -1,11 +1,13 @@
 import axios from "axios";
-import { DOMAIN } from "configs/path";
+import { DOMAIN, getHeaders } from "api/configs/path";
 
 const API_URL = DOMAIN + "/users";
 
 export const getUsers = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL, {
+      headers: getHeaders(),
+    });
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -15,13 +17,11 @@ export const getUsers = async () => {
 
 export const updateUser = async (
   id: number,
-  userData: SupplierFullData | SupplySpecialistFullData| undefined
+  userData: SupplierFullData | SupplySpecialistFullData | undefined
 ) => {
   try {
-    const response = await axios.put(API_URL+id, userData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await axios.put(API_URL + id, userData, {
+      headers: getHeaders(),
     });
     console.log(response.data);
     return response.data;
@@ -32,11 +32,10 @@ export const updateUser = async (
 
 export const deleteUser = async (id: number) => {
   try {
-    const response = await axios.delete(API_URL+id, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.delete(API_URL + id,{
+      headers: getHeaders(),
+    }
+    );
     console.log(response.data);
     return response.data;
   } catch (error) {

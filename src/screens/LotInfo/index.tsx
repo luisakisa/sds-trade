@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from "../../components/Header";
 import "./styles.css";
 import { Redux } from "store";
@@ -18,14 +18,18 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { lotsMiddleware } from "store/middlewares";
+import { lotMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { Position, Lot } from "interfaces/lots";
+import { Position, Requests } from "interfaces/lots";
 import { Role } from "interfaces/auth";
 
 const columnHelper = createColumnHelper<Position>();
+
+// eslint-disable-next-line prefer-const
+let selectedRequests: Record<number, number> = {};
+let sum = 0;
 
 const getWidth = () => {
   return window.innerWidth;
@@ -34,25 +38,17 @@ const getWidth = () => {
 function LotInfo() {
   const id = useParams<{ id: string }>().id;
   const dispatch = useDispatch();
-  const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
+  const lot = useSelector(Redux.Selectors.LotSelectors.getState);
   const [status, setStatus] = useState("В работе");
-  const [summ, setSumm] = useState(0);
-  const [data, setData] = useState(() => [...lots]);
-  const [selectedRequests, setSelectedRequests] = useState<
-    Record<number, number>
-  >({});
+  const [data, setData] = useState(lot);
   const { role } = useSelector(Redux.Selectors.AuthSelectors.getState);
 
   const navigate = useNavigate();
 
   const getUniqueSuppliers = () => {
     const suppliers: Set<string> = new Set();
-    lots[0].positions.forEach((position) => {
-      {
-        position.requests.forEach((request) => {
-          suppliers.add(request.supplier);
-        });
-      }
+    lot.requests.forEach((request) => {
+      suppliers.add(request?.supplier?.name);
     });
     return Array.from(suppliers);
   };
@@ -60,174 +56,160 @@ function LotInfo() {
   const uniqueSuppliers = getUniqueSuppliers();
 
   useEffect(() => {
-    if (lots !== data) {
-      dispatch(lotsMiddleware() as unknown as UnknownAction);
-      if (lots.length > 0) {
-        const formattedLots = lots.filter((lot) => {
-          return lot.id === Number(id);
-        });
-        setData(formattedLots);
-        setStatus(formattedLots[0].status);
-      }
-    }
-  }, [dispatch]);
+    dispatch(lotMiddleware(Number(id)) as unknown as UnknownAction);
+    setData(lot);
+    setStatus(lot.lot.status);
+  }, []);
 
-  const firstColumn = [
-    columnHelper.accessor("id", {
-      header: () => "Позиции лота",
-      cell: () => {
-        const content =
-          data[0].positions.length > 0 ? (
-            <Table style={{ width: 300 }}>
-              <TableHead style={{ paddingLeft: 20 }}>
-                <TableRow style={{ height: 50 }}>
-                  <TableCell>Наименование</TableCell>
-                  <TableCell>руб./шт.</TableCell>
-                  <TableCell> шт.</TableCell>
-                </TableRow>
-              </TableHead>
+  useEffect(() => {
+    setData(lot);
+    setStatus(lot.lot.status);
+  }, [lot]);
+
+  const firstColumn = useMemo(
+    () => [
+      columnHelper.accessor("id", {
+        header: () => "Позиции лота",
+        cell: (info: any) => {
+          const position = info.row.original;
+          return (
+            <Table style={{ width: "100%" }}>
               <TableBody>
-                {data[0].positions.map((req, index) => (
-                  <TableRow hover key={index} style={{ height: 50 }}>
-                    <TableCell>{req.itemName}</TableCell>
-                    <TableCell>{req.priceForOne}</TableCell>
-                    <TableCell>{req.count}</TableCell>
-                  </TableRow>
-                ))}
+                <TableRow>
+                  <TableCell style={{ width: "33%" }}>
+                    {position.itemName}
+                  </TableCell>
+                  <TableCell style={{ width: "33%" }}>
+                    {position.priceForOne}
+                  </TableCell>
+                  <TableCell style={{ width: "33%" }}>
+                    {position.count}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
-          ) : (
-            "No offers"
           );
+        },
+      }),
+    ],
+    [data]
+  );
 
-        return content;
-      },
-    }),
-  ];
   const handleCheckboxChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     positionId: number,
-    requestId: number
+    requestId: number,
+    count: number,
+    priceForOne: number
   ) => {
     const isChecked = event.target.checked;
 
-    const price = data[0].positions
-      .map((position) =>
-        position.requests.find((request) => request.id === requestId)
-      )
-      .find((request) => request !== undefined)?.price;
-
-    const count = data[0].positions
-      .map((position) =>
-        position.requests.find((request) => request.id === requestId)
-      )
-      .find((request) => request !== undefined)?.quantity;
-
     if (isChecked) {
       if (!selectedRequests[positionId]) {
-        price && count && setSumm(summ + price * count);
-        setSelectedRequests({
-          ...selectedRequests,
-          [positionId]: requestId,
-        });
+        priceForOne && count && (sum = sum + priceForOne * count);
+        selectedRequests[positionId] = requestId;
+        console.log(selectedRequests);
       }
     } else {
       if (selectedRequests[positionId]) {
-        const updatedRequests = { ...selectedRequests };
-        delete updatedRequests[positionId];
-        setSelectedRequests(updatedRequests);
-        price && count && setSumm(summ - price * count);
+        delete selectedRequests[positionId];
+        priceForOne && count && (sum = sum - priceForOne * count);
       }
     }
   };
 
-  const columns: any[] = uniqueSuppliers.map((supplier) => ({
-    id: supplier,
-    header: () => supplier,
-    cell: () => {
-      const matchingRequests = data[0].positions.flatMap((position) =>
-        position.requests.filter((req) => req.supplier === supplier)
+  const getMinTotalPrices = () => {
+    const minPrices: Record<number, number> = {};
+    data.positions.forEach((position) => {
+      const minPrice = Math.min(
+        ...data.requests
+          .filter((req) => req.positionId === position.id)
+          .map((req) => req.priceForOne * req.count)
       );
+      minPrices[position.id] = minPrice;
+    });
+    return minPrices;
+  };
 
-      const requestsContent =
-        matchingRequests.length > 0 ? (
-          <Table style={{ width: 200 }}>
-            <TableHead style={{ paddingLeft: 50 }}>
-              <TableRow style={{ height: 50 }}>
-                {role === Role.SupplierSpecialist && <TableCell></TableCell>}
-                <TableCell>Наименование</TableCell>
-                <TableCell>руб./шт.</TableCell>
-                <TableCell> шт.</TableCell>
-                <TableCell> Сумма</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {matchingRequests.map((req, index) => (
-                <TableRow hover key={index} style={{ height: 50 }}>
+  const minTotalPrices = getMinTotalPrices();
+
+  const columns: any[] = useMemo(
+    () =>
+      uniqueSuppliers.map((supplier) => ({
+        id: supplier,
+        header: () => supplier,
+        cell: (info: any) => {
+          const position = info.row.original;
+          const matchingRequests = data.requests?.filter(
+            (req: Requests) =>
+              req.supplier?.name === supplier && req.positionId === position.id
+          );
+          const requestsContent =
+            matchingRequests.length > 0 ? (
+              matchingRequests.map((req, index) => (
+                <TableRow hover key={index}>
                   {role === Role.SupplierSpecialist && (
-                    <Checkbox
-                      disabled={
-                        !!selectedRequests[
-                          lots[0].positions.find((position) =>
-                            position.requests.some(
-                              (request) => request.id === req.id
-                            )
-                          )?.id ?? 0
-                        ] &&
-                        selectedRequests[
-                          lots[0].positions.find((position) =>
-                            position.requests.some(
-                              (request) => request.id === req.id
-                            )
-                          )?.id ?? 0
-                        ] !== req.id
-                      }
-                      checked={
-                        !!selectedRequests[
-                          lots[0].positions.find((position) =>
-                            position.requests.some(
-                              (request) => request.id === req.id
-                            )
-                          )?.id ?? 0
-                        ]
-                      }
-                      onChange={(event) => {
-                        const matchingPosition = lots[0].positions.find(
-                          (position) =>
-                            position.requests.some(
-                              (request) => request.id === req.id
-                            )
-                        );
-                        if (matchingPosition) {
+                    <TableCell>
+                      <Checkbox
+                        disabled={
+                          selectedRequests[req.positionId] !== undefined &&
+                          req.id !== selectedRequests[req.positionId]
+                        }
+                        checked={req.id === selectedRequests[req.positionId]}
+                        onChange={(event) => {
                           handleCheckboxChange(
                             event,
-                            matchingPosition.id,
-                            req.id
+                            req.positionId,
+                            req.id,
+                            req.count,
+                            req.priceForOne
                           );
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </TableCell>
                   )}
-                  <TableCell>{req.name}</TableCell>
-                  <TableCell>{req.price}</TableCell>
-                  <TableCell>{req.quantity}</TableCell>
-                  <TableCell>{req.quantity * req.price}</TableCell>
+                  <TableCell style={{ width: "25%" }}>{req.itemName}</TableCell>
+                  <TableCell style={{ width: "25%" }}>
+                    {req.priceForOne}
+                  </TableCell>
+                  <TableCell style={{ width: "25%" }}>{req.count}</TableCell>
+                  <TableCell
+                    style={{
+                      width: "25%",
+                      border:
+                        req.priceForOne * req.count ===
+                        minTotalPrices[req.positionId]
+                          ? "2px solid green"
+                          : "1px solid #ddd",
+                    }}
+                  >
+                    {req.priceForOne * req.count}
+                  </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          "No offers"
-        );
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={role === Role.SupplierSpecialist ? 5 : 4}
+                  style={{ textAlign: "center" }}
+                >
+                  No offers
+                </TableCell>
+              </TableRow>
+            );
 
-      return requestsContent;
-    },
-  }));
+          return (
+            <Table style={{ width: "100%" }}>
+              <TableBody>{requestsContent}</TableBody>
+            </Table>
+          );
+        },
+      })),
+    [data, selectedRequests]
+  );
 
   const table = useReactTable({
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    data,
+    data: data.positions,
     columns: firstColumn.concat(columns),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -274,11 +256,11 @@ function LotInfo() {
               flexDirection: "row",
               marginTop: 10,
               flex: 1,
-              width: "100%",
+              width: "90%",
             }}
           >
             <text>Выбрано позиций: {Object.keys(selectedRequests).length}</text>
-            <text>Общая сумма: {summ}</text>
+            <text>Общая сумма: {sum}</text>
           </div>
         </div>
         <div
@@ -318,7 +300,7 @@ function LotInfo() {
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      style={{ border: "1px solid #ddd" }}
+                      style={{ border: "1px solid #ddd", textAlign: "center" }}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -334,10 +316,7 @@ function LotInfo() {
         {role === Role.SupplierSpecialist && (
           <Button
             disabled={
-              !(
-                Object.keys(selectedRequests).length ===
-                data[0].positions.length
-              )
+              !(Object.keys(selectedRequests).length === data.positions?.length)
             }
             variant="contained"
             onClick={handleCloseLot}

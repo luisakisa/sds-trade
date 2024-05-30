@@ -52,13 +52,10 @@ const columns: any = [
         row.original.closeDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
       );
 
-      // Вычисляем разницу в миллисекундах
       const differenceInTime = closeDate.getTime() - todayDate.getTime();
 
-      // Вычисляем разницу в днях
       const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-      // Если разница отрицательная, возвращаем 0, иначе возвращаем разницу
       return differenceInDays < 0 ? 0 : differenceInDays;
     },
   }),

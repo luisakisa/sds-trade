@@ -13,14 +13,14 @@ function User() {
   const { id } = useParams();
 
   const [user, setUser] = useState<
-    SupplierFullData | SupplySpecialistFullData
+    SupplierFullData
   >();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const usersData = await getUsers();
-        usersData.forEach((u: SupplierFullData | SupplySpecialistFullData) => {
+        usersData.forEach((u: SupplierFullData) => {
           if (id && u.id === parseInt(id)) {
             setUser(u);
           }

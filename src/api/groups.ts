@@ -1,12 +1,14 @@
 import axios from "axios";
-import { DOMAIN } from "configs/path";
+import { DOMAIN, getHeaders } from "api/configs/path";
 import { Group } from "interfaces/groups";
 
 const API_URL = DOMAIN + "/groups";
 
 export const getGroups = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL, {
+      headers: getHeaders(),
+    });
     console.log(response.data);
     return response.data as Group[];
   } catch (error) {
@@ -18,9 +20,7 @@ export const getGroups = async () => {
 export const createGroup = async (group: Group) => {
   try {
     const response = await axios.post(API_URL, group, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
     });
     console.log(response.data);
     return response.status === 200 ? response.data : null;

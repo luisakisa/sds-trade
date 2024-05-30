@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import "./styles.css";
 import { Redux } from "store";
@@ -10,6 +10,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
 } from "@mui/material";
 import {
   createColumnHelper,
@@ -52,13 +53,10 @@ const columns: any = [
         row.original.closeDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
       );
 
-      // Вычисляем разницу в миллисекундах
       const differenceInTime = closeDate.getTime() - todayDate.getTime();
 
-      // Вычисляем разницу в днях
       const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-      // Если разница отрицательная, возвращаем 0, иначе возвращаем разницу
       return differenceInDays < 0 ? 0 : differenceInDays;
     },
   }),
@@ -75,13 +73,17 @@ const formatDate = (dateString: string): string => {
 function Lots() {
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
-  const [status, setStatus] = React.useState("В работе");
-  const [data, setData] = React.useState(() => [...lots]);
+  const [status, setStatus] = useState("В работе");
+  const [data, setData] = useState<Lot[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(lotsMiddleware() as unknown as UnknownAction);
-    if (lots?.length > 0) {
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (lots.length > 0) {
       const formattedLots = lots.map((lot) => ({
         ...lot,
         openDate: formatDate(lot.openDate),
@@ -89,21 +91,21 @@ function Lots() {
       }));
       setData(formattedLots);
     }
-  }, [dispatch]);
+  }, [lots]);
 
   useEffect(() => {
-    if (lots !== data) {
-      const filtered = lots.filter((lot) => {
-        return status === lot.status
-      });
-      const formattedLots = filtered.map((lot) => ({
-        ...lot,
-        openDate: formatDate(lot.openDate),
-        closeDate: formatDate(lot.closeDate),
-      }));
-      setData(formattedLots);
-    }
-  }, [lots, status]);
+    const filteredLots = lots
+      .filter((lot) => status === lot.status)
+      .filter((lot) =>
+        lot.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    const formattedLots = filteredLots.map((lot) => ({
+      ...lot,
+      openDate: formatDate(lot.openDate),
+      closeDate: formatDate(lot.closeDate),
+    }));
+    setData(formattedLots);
+  }, [lots, status, searchTerm]);
 
   const table = useReactTable({
     data,
@@ -143,13 +145,22 @@ function Lots() {
         >
           <text>Статус лота: {status}</text>
         </div>
+        <TextField
+          label="Поиск по названию"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ marginLeft: 202, width: getWidth() - 202 }}
+        />
         <Table
           className="table-lotsInfo"
           style={{ marginLeft: 200, width: getWidth() - 200 }}
         >
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} style={{border: "1px solid #ddd"}}>
+              <TableRow
+                key={headerGroup.id}
+                style={{ border: "1px solid #ddd" }}
+              >
                 {headerGroup.headers.map((header) => (
                   <TableCell key={header.id}>
                     {header.isPlaceholder
@@ -171,7 +182,7 @@ function Lots() {
                 onClick={() => {
                   navigate(`/lot/${row.original.id}`);
                 }}
-                style={{border: "1px solid #ddd"}}
+                style={{ border: "1px solid #ddd" }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -182,7 +193,7 @@ function Lots() {
             ))}
           </TableBody>
         </Table>
-        <div className="Sidebar"  style={{border: "1px solid #ddd"}}>
+        <div className="Sidebar" style={{ border: "1px solid #ddd" }}>
           <ul>
             <li>
               <a href="#" onClick={() => handleStatusChange("В работе")}>
@@ -195,7 +206,7 @@ function Lots() {
               </a>
             </li>
             <li>
-              <a href="#" onClick={() => handleStatusChange("Завершенные")}>
+              <a href="#" onClick={() => handleStatusChange("Завершен")}>
                 Завершенные
               </a>
             </li>

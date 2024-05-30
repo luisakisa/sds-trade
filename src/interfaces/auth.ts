@@ -1,7 +1,7 @@
 export enum Role {
-  Admin = "Admin",
-  Supplier = "Supplier",
-  SupplierSpecialist = "Supplier Specialist",
+  Admin = "admin",
+  Supplier = "supplier",
+  SupplierSpecialist = "supplySpecialist",
 }
 
 export interface Auth {
