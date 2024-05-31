@@ -130,7 +130,6 @@ function CreateGroup() {
           onChange={handleNameChange}
         />
         <br />
-        <label style={{ fontWeight: 600 }}>Ответственный руководитель:</label>
         <List sx={{ width: "100%", bgcolor: "background.paper" }}>
           <TextField
             id="outlined-basic"

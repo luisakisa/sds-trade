@@ -12,6 +12,7 @@ import store, { persistor } from "store";
 import { PersistGate } from "redux-persist/integration/react";
 import Lots from "screens/Lots";
 import LotInfo from "screens/LotInfo";
+import LotDelete from "screens/admin/LotInfo";
 import Feedback from "screens/Feedback";
 import Requests from "screens/Requests";
 import ManageUsers from "screens/admin/Manage";
@@ -24,6 +25,8 @@ import DeleteLots from "screens/admin/DeleteLots";
 import LotsGroups from "screens/supplier/Groups";
 import GroupLots from "screens/supplier/GroupLots";
 import LotRequest from "screens/supplier/LotInfo";
+import SupplierInfo from "screens/supplySpecialist/SupplierInfo";
+import GroupsLots from "screens/admin/GroupsLots";
 
 function App() {
   const router = createBrowserRouter([
@@ -64,6 +67,10 @@ function App() {
       element: <LotInfo />,
     },
     {
+      path: "/admin/lot/:id",
+      element: <LotDelete />,
+    },
+    {
       path: "/feedback",
       element: <Feedback />,
     },
@@ -96,7 +103,7 @@ function App() {
       element: <Groups/>,
     },
     {
-      path: "/deletelots",
+      path: "/admin/deletelots/:name",
       element: <DeleteLots/>,
     },
     {
@@ -110,7 +117,15 @@ function App() {
     {
       path:"/supplier/lot/:id",
       element: <LotRequest/>,
-    }
+    },
+    {
+      path: "/supplierInfo/:id",
+      element: <SupplierInfo/>,
+    },
+    {
+      path: "/admin/groupslots",
+      element: <GroupsLots/>,
+    },
   ]);
 
   return (

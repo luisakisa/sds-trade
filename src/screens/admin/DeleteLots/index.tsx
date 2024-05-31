@@ -10,6 +10,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
 } from "@mui/material";
 import {
   createColumnHelper,
@@ -19,7 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Lot } from "interfaces/lots";
 
 const columnHelper = createColumnHelper<Lot>();
@@ -29,6 +30,10 @@ const getWidth = () => {
 const columns: any = [
   columnHelper.accessor("id", {
     header: () => "№ Лота",
+    cell: (info) => info.renderValue(),
+  }),
+  columnHelper.accessor("lotCreator", {
+    header: () => "Создатель",
     cell: (info) => info.renderValue(),
   }),
   columnHelper.accessor("name", {
@@ -70,16 +75,21 @@ const formatDate = (dateString: string): string => {
 };
 
 function DeleteLots() {
+  const nameGroup = useParams<{ name: string }>().name;
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
   const [status, setStatus] = React.useState("В работе");
+  const [searchTerm, setSearchTerm] = React.useState("");
   const [data, setData] = React.useState(() => [...lots]);
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(lotsMiddleware() as unknown as UnknownAction);
     if (lots?.length > 0) {
-      const formattedLots = lots.map((lot) => ({
+      const filtered = lots.filter((lot) => {
+        return lot.groupEts === nameGroup;
+      });
+      const formattedLots = filtered.map((lot) => ({
         ...lot,
         openDate: formatDate(lot.openDate),
         closeDate: formatDate(lot.closeDate),
@@ -91,7 +101,11 @@ function DeleteLots() {
   useEffect(() => {
     if (lots !== data) {
       const filtered = lots.filter((lot) => {
-        return status === lot.status
+        return (
+          status === lot.status &&
+          lot.groupEts === nameGroup &&
+          lot.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
       });
       const formattedLots = filtered.map((lot) => ({
         ...lot,
@@ -140,13 +154,24 @@ function DeleteLots() {
         >
           <text>Статус лота: {status}</text>
         </div>
+        <div style={{ marginLeft: 200, marginTop: 20 }}>
+          <TextField
+            label="Поиск по названию"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: getWidth() - 202 }}
+          />
+        </div>
         <Table
           className="table-lotsInfo"
-          style={{ marginLeft: 200, width: getWidth() - 200 }}
+          style={{ marginLeft: 200, width: getWidth() - 200, marginTop: 20 }}
         >
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} style={{border: "1px solid #ddd"}}>
+              <TableRow
+                key={headerGroup.id}
+                style={{ border: "1px solid #ddd" }}
+              >
                 {headerGroup.headers.map((header) => (
                   <TableCell key={header.id}>
                     {header.isPlaceholder
@@ -166,9 +191,9 @@ function DeleteLots() {
                 hover
                 key={row.id}
                 onClick={() => {
-                  navigate(`/lot/${row.original.id}`);
+                  navigate(`/admin/lot/${row.original.id}`);
                 }}
-                style={{border: "1px solid #ddd"}}
+                style={{ border: "1px solid #ddd" }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -179,7 +204,7 @@ function DeleteLots() {
             ))}
           </TableBody>
         </Table>
-        <div className="Sidebar"  style={{border: "1px solid #ddd"}}>
+        <div className="Sidebar" style={{ border: "1px solid #ddd" }}>
           <ul>
             <li>
               <a href="#" onClick={() => handleStatusChange("В работе")}>
@@ -195,9 +220,6 @@ function DeleteLots() {
               <a href="#" onClick={() => handleStatusChange("Завершенные")}>
                 Завершенные
               </a>
-            </li>
-            <li>
-              <Button onClick={() => navigate("/createlot")}>Создать</Button>
             </li>
           </ul>
         </div>

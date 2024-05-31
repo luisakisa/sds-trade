@@ -88,7 +88,7 @@ function User() {
             marginBottom: 40,
           }}
         >
-          Пользователи
+          Редактирование пользователя: {user?.email}
         </text>
         <br />
 

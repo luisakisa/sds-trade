@@ -52,7 +52,6 @@ function Groups() {
         <br />
 
         <br />
-        <label style={{ fontWeight: 600 }}>Ответственный руководитель:</label>
         <List sx={{ width: "100%" }}>
           {groups.map((group) => (
             <ListItemButton
@@ -63,6 +62,7 @@ function Groups() {
               onClick={() => navigate(`/changegroup/${group.id}`)}
             >
               <ListItemText primary={group.id} />
+              <ListItemText primary={group.name} />
               <ListItemText primary={group.name} />
             </ListItemButton>
           ))}

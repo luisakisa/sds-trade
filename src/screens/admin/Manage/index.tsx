@@ -91,7 +91,7 @@ function ManageUsers() {
           variant="contained"
           aria-label="Basic button group"
         >
-          <Button variant="text" onClick={()=>navigate("/deletelots")}>Удалить лот</Button>
+          <Button variant="text" onClick={()=>navigate("/admin/groupslots")}>Удалить лот</Button>
         </ButtonGroup>
       </div>
     </div>  

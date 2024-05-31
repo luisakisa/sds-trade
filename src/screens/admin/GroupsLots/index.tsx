@@ -16,7 +16,7 @@ import { getGroups } from "api/groups";
 import { Group } from "interfaces/groups";
 import { Redux } from "store";
 
-function Groups() {
+function GroupsLots() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -47,7 +47,16 @@ function Groups() {
   return (
     <div className="GroupLots">
       <Header />
-      <div className="content-contacts" style={{ paddingInline: 200, fontFamily: "Montserrat", marginTop: 50, display: "flex", flexDirection: "column"}}>
+      <div
+        className="content-contacts"
+        style={{
+          paddingInline: 200,
+          fontFamily: "Montserrat",
+          marginTop: 50,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <text style={{ fontSize: 40, fontWeight: 700, color: "#2B2A29" }}>
           Группы Лотов
         </text>
@@ -58,17 +67,21 @@ function Groups() {
           id="search-group"
           label="Поиск по названию группы"
           variant="outlined"
-          style={{ marginBottom: 30, width: '100%' }}
+          style={{ marginBottom: 30, width: "100%" }}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      <div className="Content" style={{ fontFamily: "Montserrat", paddingInline: 200 }}>
+      <div
+        className="Content"
+        style={{ fontFamily: "Montserrat", paddingInline: 200 }}
+      >
         <Table className="table-groupsInfo" style={{ width: "100%" }}>
           <TableHead>
             <TableRow>
               <TableCell>№ Группы</TableCell>
               <TableCell>Название группы</TableCell>
+              <TableCell>Руководитель</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -76,11 +89,20 @@ function Groups() {
               <TableRow
                 key={group.id}
                 hover
-                onClick={() => navigate(`/supplier/grouplots/${group.id}`)}
+                onClick={() => navigate(`/admin/deletelots/${group.name}`)}
                 style={{ cursor: "pointer" }}
               >
                 <TableCell>{group.id}</TableCell>
                 <TableCell>{group.name}</TableCell>
+                <TableCell>
+                  {group.managerPost +
+                    ":" +
+                    group.managerLastName +
+                    " " +
+                    group.managerFirstName +
+                    " " +
+                    group.managerMiddleName}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -90,4 +112,4 @@ function Groups() {
   );
 }
 
-export default Groups;
+export default GroupsLots;

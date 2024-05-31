@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import Header from "../../components/Header";
+import Header from "components/Header";
 import "./styles.css";
 import { Redux } from "store";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +24,7 @@ import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { Position, Requests } from "interfaces/lots";
 import { Role } from "interfaces/auth";
+import { deleteLot } from "api/lots";
 
 const columnHelper = createColumnHelper<Position>();
 
@@ -71,11 +72,7 @@ function LotInfo() {
       columnHelper.accessor("id", {
         header: () => (
           <>
-            <Table
-              style={{ border: "1px solid #ddd"}}
-            >
-              Позиции лота
-            </Table>
+            <Table style={{ border: "1px solid #ddd" }}>Позиции лота</Table>
             <TableRow
               style={{ justifyContent: "space-between", width: "100%" }}
             >
@@ -281,9 +278,10 @@ function LotInfo() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleCloseLot = () => {
-    setStatus("Завершен");
-    dispatch(Redux.Actions.Lots.completeLot(Number(id)));
+  const handleDelete = async () => {
+    await deleteLot(Number(id)).then(() => {
+      navigate(-1);
+    });
   };
 
   return (
@@ -381,11 +379,11 @@ function LotInfo() {
         </div>
         {role === Role.SupplierSpecialist && (
           <Button
-            disabled={!(Object.keys(selectedRequests).length > 0)}
             variant="contained"
-            onClick={handleCloseLot}
+            style={{ backgroundColor: "#f56464" }}
+            onClick={handleDelete}
           >
-            Завершить лот
+            Удалить лот
           </Button>
         )}
         <div className="Sidebar">
