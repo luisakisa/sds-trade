@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import "./style.css";
 import Button from "../Button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Redux } from "store";
 import UserRoundedIcon from "assets/icon/userRounded.svg";
 import { HandySvg } from "handy-svg";
@@ -11,12 +11,18 @@ import { Role } from "interfaces/auth";
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { isAuthenticated, email, role } = useSelector(
     Redux.Selectors.AuthSelectors.getState
   );
 
   const getNavLinkClass = (path: string) => {
     return location.pathname === path ? "nav-link active" : "nav-link";
+  };
+
+  const handleLogout = async () => {
+    dispatch(Redux.Actions.Auth.logout());
+    navigate("/auth");
   };
 
   return (
@@ -108,9 +114,17 @@ function Header() {
               />
             </ul>
           ) : (
-            <ul className="user" onClick={() => navigate("/profile")}>
-              <span style={{ marginRight: 5 }}>{email}</span>
-              <HandySvg src={UserRoundedIcon} height={14} width={14} />
+            <ul>
+              <div className="user">
+                <span style={{ marginRight: 5 }}>{email}</span>
+                <HandySvg src={UserRoundedIcon} height={14} width={14} />
+                <div className="dropdown-menu">
+                  <button onClick={() => navigate("/profile")}>
+                    Перейти в профиль
+                  </button>
+                  <button onClick={handleLogout}>Выйти</button>
+                </div>
+              </div>
             </ul>
           )}
         </nav>

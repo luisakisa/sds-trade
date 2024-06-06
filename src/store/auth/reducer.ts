@@ -7,6 +7,7 @@ const initialState: Auth = {
   token: undefined,
   role: undefined,
   email: undefined,
+  id: undefined,
 };
 
 export const auth = createSlice({
@@ -29,6 +30,7 @@ export const auth = createSlice({
       state.token = action.payload.token;
       state.role = action.payload.role;
       state.email = action.payload.email;
+      state.id = action.payload.id;
     });
 
     builder.addCase(authMiddleware.rejected, (state) => {
@@ -36,6 +38,7 @@ export const auth = createSlice({
       state.token = undefined;
       state.email = undefined;
       state.role = undefined;
+      state.id = undefined;
     });
   },
 });

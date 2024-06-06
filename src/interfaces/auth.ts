@@ -1,5 +1,5 @@
 export enum Role {
-  Admin = "admin",
+  Admin = "Admin",
   Supplier = "supplier",
   SupplierSpecialist = "supplySpecialist",
 }
@@ -9,4 +9,5 @@ export interface Auth {
   token: string | undefined;
   role: Role.Admin | Role.Supplier | Role.SupplierSpecialist | undefined;
   email: string | undefined;
+  id: number | undefined;
 }

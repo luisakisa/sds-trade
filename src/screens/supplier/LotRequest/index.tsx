@@ -11,13 +11,18 @@ import {
   TableRow,
   IconButton,
   TextField,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  TextareaAutosize,
 } from "@mui/material";
 import iconSrc from "assets/icon/plus.svg";
+import deleteIconSrc from "assets/icon/minus.svg";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { lotMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { List, Position, Requests } from "interfaces/lots";
+import { Requests } from "interfaces/lots";
 import { Redux } from "store";
 import { HandySvg } from "handy-svg";
 
@@ -32,6 +37,10 @@ function LotRequest() {
   const [data, setData] = useState(lot);
   const [requests, setRequests] = useState<RequestsState>({});
   const navigate = useNavigate();
+  const [deliveryMethod, setDeliveryMethod] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [comment, setComment] = useState<string>("");
+
 
   useEffect(() => {
     dispatch(lotMiddleware(Number(id)) as unknown as UnknownAction);
@@ -47,6 +56,17 @@ function LotRequest() {
       ...prev,
       [positionId]: [...(prev[positionId] || []), { amount: "" }],
     }));
+  };
+
+  const removeRequest = (positionId: number, index: number) => {
+    setRequests((prev: any) => {
+      const newRequests = { ...prev };
+      newRequests[positionId].splice(index, 1);
+      if (newRequests[positionId].length === 0) {
+        delete newRequests[positionId];
+      }
+      return newRequests;
+    });
   };
 
   const handleInputChange = (positionId: number, index: number, event: any) => {
@@ -90,9 +110,10 @@ function LotRequest() {
         <Table className="table-lotsInfo" style={{ width: "100%" }}>
           <TableHead>
             <TableRow>
-              <TableCell>Название лота</TableCell>
-              <TableCell>Дата открытия</TableCell>
-              <TableCell>Дата закрытия</TableCell>
+              <TableCell>Название позиции</TableCell>
+              <TableCell>Количество</TableCell>
+              <TableCell>Единица измерения</TableCell>
+              <TableCell>Стоимость</TableCell>
               <TableCell>Добавить заявку</TableCell>
             </TableRow>
           </TableHead>
@@ -103,6 +124,7 @@ function LotRequest() {
                   <TableCell>{position.itemName}</TableCell>
                   <TableCell>{position.count}</TableCell>
                   <TableCell>{position.unitName}</TableCell>
+                  <TableCell>{position.priceForOne}</TableCell>
                   <TableCell>
                     <IconButton onClick={() => addRequest(position.id)}>
                       <HandySvg
@@ -120,7 +142,7 @@ function LotRequest() {
                       <TableCell colSpan={3}>
                         <TextField
                           label="Наименование"
-                          value={request.count}
+                          value={request.itemName}
                           onChange={(event) =>
                             handleInputChange(position.id, index, event)
                           }
@@ -128,7 +150,7 @@ function LotRequest() {
                         />
                         <TextField
                           label="Стоимость"
-                          value={request.count}
+                          value={request.priceForOne}
                           onChange={(event) =>
                             handleInputChange(position.id, index, event)
                           }
@@ -142,6 +164,26 @@ function LotRequest() {
                           }
                           fullWidth
                         />
+                        <TextField
+                          label="Дней доставки"
+                          value={request.deliveryTime}
+                          onChange={(event) =>
+                            handleInputChange(position.id, index, event)
+                          }
+                          fullWidth
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() => removeRequest(position.id, index)}
+                        >
+                          <HandySvg
+                            src={deleteIconSrc}
+                            className="delete-icon"
+                            height={24}
+                            width={24}
+                          />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   )
@@ -150,6 +192,78 @@ function LotRequest() {
             ))}
           </TableBody>
         </Table>
+        <br />
+          <br />
+        <label>Общая информация: </label>
+          <br />
+          <br />
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Комментарий"
+            style={{
+              marginBottom: 30,
+              marginRight: 30,
+              width: "100%",
+              fontFamily: "Montserrat",
+              fontSize: 16,
+              padding: 10,
+              boxSizing: "border-box",
+            }}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <div className="radio-group">
+            <div>
+              <label>Способ доставки: </label>
+              <RadioGroup
+                aria-label="delivery-method"
+                name="delivery-method"
+                value={deliveryMethod}
+                onChange={(e) => setDeliveryMethod(e.target.value)}
+              >
+                <FormControlLabel
+                  value="pickup"
+                  control={<Radio />}
+                  label="Самовывоз"
+                />
+                <FormControlLabel
+                  value="supplier"
+                  control={<Radio />}
+                  label="Поставщиком"
+                />
+                <FormControlLabel
+                  value="transport-company"
+                  control={<Radio />}
+                  label="Транспортной компанией"
+                />
+              </RadioGroup>
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <label>Способ оплаты: </label>
+              <RadioGroup
+                aria-label="payment-method"
+                name="payment-method"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <FormControlLabel
+                  value="prepayment"
+                  control={<Radio />}
+                  label="Предоплата"
+                />
+                <FormControlLabel
+                  value="on-delivery"
+                  control={<Radio />}
+                  label="По факту поставки"
+                />
+                <FormControlLabel
+                  value="deferred-payment"
+                  control={<Radio />}
+                  label="Отсрочка платежа"
+                />
+              </RadioGroup>
+            </div>
+          </div>
         <Button
           variant="contained"
           onClick={handleSaveRequests}

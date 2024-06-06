@@ -73,11 +73,11 @@ function GroupLots() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredLots.map((lot) => (
+            {filteredLots.length > 0 ?  filteredLots.map((lot) => (
               <TableRow
                 key={lot.id}
                 hover
-                onClick={() => navigate(`/lot/${lot.id}`)}
+                onClick={() => navigate(`/supplier/lot/${lot.id}`)}
                 style={{ cursor: "pointer" }}
               >
                 <TableCell>{lot.id}</TableCell>
@@ -85,7 +85,7 @@ function GroupLots() {
                 <TableCell>{lot.openDate}</TableCell>
                 <TableCell>{lot.closeDate}</TableCell>
               </TableRow>
-            ))}
+            )): "В группе нет лотов"}
           </TableBody>
         </Table>
       </div>

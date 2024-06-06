@@ -13,17 +13,17 @@ import {
   Radio,
   RadioGroup,
   Select,
+  TextareaAutosize,
 } from "@mui/material";
 import { getGroups } from "api/groups";
 import { Group } from "interfaces/groups";
 import { useNavigate } from "react-router-dom";
 import { HandySvg } from "handy-svg";
 import iconSrc from "assets/icon/plus.svg";
-import { nanoid } from "@reduxjs/toolkit";
 import { addLot } from "api/lots";
 import { useSelector } from "react-redux";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { Redux } from "store";
+import * as XLSX from "xlsx";
 
 function CreateLot() {
   const [name, setName] = useState<string>("");
@@ -38,7 +38,8 @@ function CreateLot() {
   const [comment, setComment] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const { email } = useSelector(Redux.Selectors.AuthSelectors.getState);
+  const { id } = useSelector(Redux.Selectors.AuthSelectors.getState);
+  const [canOwnWay, setCanOwnWay] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
@@ -96,19 +97,34 @@ function CreateLot() {
     setInputRows(inputRows.filter((row) => row.id !== rowId));
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e?.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const newRows = json.slice(1).map((row: any) => ({
+          id: Date.now() + Math.random(),
+          inputs: row,
+        }));
+        setInputRows((prevRows) => [...prevRows, ...newRows]);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const response = await addLot({
-        canOwnWay: true,
+        canOwnWay,
         closeDate: endDate,
         groupEtsId: selectedGroupId,
-        lotCreatorId: 1,
-        lotFiles: [
-          {
-            lotId: 1,
-            path: "1/1",
-          },
-        ],
+        lotCreatorId: id,
+        filePath: "1/1",
         name,
         openDate: startDate,
         positions: inputRows.map((row) => ({
@@ -124,10 +140,6 @@ function CreateLot() {
         },
         statusId: 1,
       });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
       navigate("/lots");
     } catch (error) {
       console.error("Error:", error);
@@ -182,10 +194,16 @@ function CreateLot() {
               id="demo-simple-select"
               label="Группа лота"
               value={selectedGroup}
-              onChange={(e) => setSelectedGroup(e.target.value)}
+              onChange={(e) => {
+                setSelectedGroup(e.target.value);
+              }}
             >
               {groups.map((group) => (
-                <MenuItem key={group.id} value={group.id}>
+                <MenuItem
+                  key={group.id}
+                  value={group.id}
+                  onClick={() => setSelectedGroupId(group.id)}
+                >
                   {group.name}
                 </MenuItem>
               ))}
@@ -266,6 +284,7 @@ function CreateLot() {
           <FormControlLabel
             control={<Checkbox defaultChecked />}
             label="Разрешить предлагать свои способы оплаты и доставки"
+            onChange={() => setCanOwnWay(!canOwnWay)}
           />
           {inputRows.map((row, rowIndex) => (
             <div key={row.id} className="input-row" style={{ paddingTop: 20 }}>
@@ -287,7 +306,11 @@ function CreateLot() {
               <Button
                 variant="contained"
                 onClick={() => handleRemoveRow(row.id)}
-                style={{ marginBottom: 30, marginRight: 30, backgroundColor:"#f56464" }}
+                style={{
+                  marginBottom: 30,
+                  marginRight: 30,
+                  backgroundColor: "#f56464",
+                }}
               >
                 Удалить
               </Button>
@@ -312,6 +335,20 @@ function CreateLot() {
               />
             </button>
             <span className="add-row-label">Добавить позицию</span>
+          </div>
+          <div style={{ marginTop: 20 }}>
+            <input
+              accept=".xlsx, .xls"
+              id="file-upload"
+              type="file"
+              onChange={handleFileUpload}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="file-upload">
+              <Button variant="contained" component="span">
+                Импортировать из Excel
+              </Button>
+            </label>
           </div>
         </List>
         <Button variant="contained" onClick={handleSubmit}>

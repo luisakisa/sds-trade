@@ -81,7 +81,7 @@ export const getLotsByGroup = async (groupId:number) => {
 
 export const getLotById = async (groupId:number) => {
   try {
-    const response = await axios.get(DOMAIN + `/lists/${groupId}`, {
+    const response = await axios.get(DOMAIN + `/lists/lots/${groupId}`, {
       headers: getHeaders(),
     });
     console.log(response.data);
@@ -91,3 +91,29 @@ export const getLotById = async (groupId:number) => {
     throw new Error("Ошибка");
   }
 };
+
+export const getListForSupplierByEmail = async (supplierEmail:string, lotId:number) => {
+  try {
+    const response = await axios.get(DOMAIN + `/lists/lots/${lotId}/suppliers/${supplierEmail}`, {
+      headers: getHeaders(),
+    });
+    console.log(response.data);
+    return response.data;
+  }
+  catch (error) {
+    throw new Error("Ошибка");
+  }
+};
+
+// export const getLotsByUserIdByStatus = async (status:string, userId: number ) => {
+//   try {
+//     const response = await axios.get(API_URL + `/${userId}/statuses/${status}`, {
+//       headers: getHeaders(),
+//     });
+//     console.log(response.data);
+//     return response.data;
+//   }
+//   catch (error) {
+//     throw new Error("Ошибка");
+//   }
+// };

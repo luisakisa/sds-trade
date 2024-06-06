@@ -48,7 +48,7 @@ const columns: any = [
     header: () => "Дата закрытия",
     cell: (info) => info.renderValue(),
   }),
-  columnHelper.accessor("rules.paymentMethod", {
+  columnHelper.accessor("rules.paymentMethodId", {
     header: () => "Дней до конца",
     cell: (info) => {
       const { row } = info;
@@ -78,7 +78,9 @@ function DeleteLots() {
   const nameGroup = useParams<{ name: string }>().name;
   const dispatch = useDispatch();
   const lots: Lot[] = useSelector(Redux.Selectors.LotsSelectors.getState);
-  const [status, setStatus] = React.useState("В работе");
+  const [selectedStatuses, setSelectedStatuses] = React.useState<string[]>([
+    "В работе", "На оформлении", "Завершенные",
+  ]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [data, setData] = React.useState(() => [...lots]);
   const navigate = useNavigate();
@@ -102,7 +104,7 @@ function DeleteLots() {
     if (lots !== data) {
       const filtered = lots.filter((lot) => {
         return (
-          status === lot.status &&
+          selectedStatuses.includes(lot.status) &&
           lot.groupEts === nameGroup &&
           lot.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -114,7 +116,7 @@ function DeleteLots() {
       }));
       setData(formattedLots);
     }
-  }, [lots, status]);
+  }, [lots, selectedStatuses, searchTerm]);
 
   const table = useReactTable({
     data,
@@ -122,8 +124,12 @@ function DeleteLots() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus);
+  const handleStatusChange = (status: string) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    );
   };
 
   return (
@@ -152,7 +158,7 @@ function DeleteLots() {
             border: "2px solid #ddd",
           }}
         >
-          <text>Статус лота: {status}</text>
+          <text>Статус лота: {selectedStatuses.join(", ")}</text>
         </div>
         <div style={{ marginLeft: 200, marginTop: 20 }}>
           <TextField
@@ -207,19 +213,34 @@ function DeleteLots() {
         <div className="Sidebar" style={{ border: "1px solid #ddd" }}>
           <ul>
             <li>
-              <a href="#" onClick={() => handleStatusChange("В работе")}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedStatuses.includes("В работе")}
+                  onChange={() => handleStatusChange("В работе")}
+                />
                 В работе
-              </a>
+              </label>
             </li>
             <li>
-              <a href="#" onClick={() => handleStatusChange("На оформлении")}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedStatuses.includes("На оформлении")}
+                  onChange={() => handleStatusChange("На оформлении")}
+                />
                 На оформлении
-              </a>
+              </label>
             </li>
             <li>
-              <a href="#" onClick={() => handleStatusChange("Завершенные")}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedStatuses.includes("Завершенные")}
+                  onChange={() => handleStatusChange("Завершенные")}
+                />
                 Завершенные
-              </a>
+              </label>
             </li>
           </ul>
         </div>

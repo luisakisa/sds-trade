@@ -9,8 +9,8 @@ export interface Requests {
 }
 
 export interface Supplier {
-  id: number,
-  name: string,
+  id: number;
+  name: string;
 }
 export interface Lot {
   id: number;
@@ -18,7 +18,7 @@ export interface Lot {
   closeDate: string;
   groupEts: string;
   lotCreator: string;
-  lotFiles: LotFile[] | undefined;
+  filePath: string;
   name: string;
   openDate: string;
   rules: Rules;
@@ -27,8 +27,8 @@ export interface Lot {
 }
 export interface Rules {
   comment: string;
-  paymentMethod: string;
-  shippingMethod: string;
+  paymentMethodId: number;
+  shippingMethodId: number;
 }
 
 export interface Position {
@@ -38,11 +38,7 @@ export interface Position {
   priceForOne: number;
   unitName: string;
   requests?: Requests[];
-}
-
-export interface File {
-  path: string;
-  supplierId: number;
+  winner?: number;
 }
 
 export interface LotFile {
@@ -62,20 +58,16 @@ export interface Payment {
   value?: number;
 }
 
-
 export interface Rules {
   comment: string;
-  paymentMethod: string;
-  shippingMethod: string;
+  paymentMethodId: number;
+  shippingMethodId: number;
 }
 
 export interface List {
- lot : Lot
+  lot: Lot;
   rules: Rules[];
-
-
   positions: Position[];
-  files?: File[];
+  files?: string[];
   requests: Requests[];
 }
-

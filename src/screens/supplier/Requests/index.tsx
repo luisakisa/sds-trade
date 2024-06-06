@@ -1,11 +1,11 @@
+import * as XLSX from "xlsx";
 import React, { useEffect, useState, useMemo } from "react";
-import Header from "../../components/Header";
+import Header from "components/Header";
 import "./styles.css";
 import { Redux } from "store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
-  Checkbox,
   Table,
   TableBody,
   TableCell,
@@ -18,12 +18,10 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { lotMiddleware } from "store/middlewares";
-import { UnknownAction } from "@reduxjs/toolkit";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { Position, Requests } from "interfaces/lots";
-import { Role } from "interfaces/auth";
+import { getListForSupplierByEmail } from "api/lots";
+import { List, Position, Requests } from "interfaces/lots";
 
 const columnHelper = createColumnHelper<Position>();
 
@@ -31,13 +29,13 @@ const getWidth = () => {
   return window.innerWidth;
 };
 
-function LotInfo() {
+function LotRequests() {
   const id = useParams<{ id: string }>().id;
   const dispatch = useDispatch();
-  const lot = useSelector(Redux.Selectors.LotSelectors.getState);
+  const list = useSelector(Redux.Selectors.LotSelectors.getState);
   const [status, setStatus] = useState("В работе");
-  const [data, setData] = useState(lot);
-  const { role } = useSelector(Redux.Selectors.AuthSelectors.getState);
+  const [data, setData] = useState<List>(list);
+  const { email } = useSelector(Redux.Selectors.AuthSelectors.getState);
   const [selectedRequests, setSelectedRequests] = useState<
     Record<number, number>
   >({});
@@ -45,37 +43,26 @@ function LotInfo() {
 
   const navigate = useNavigate();
 
-  const getUniqueSuppliers = () => {
-    const suppliers: Set<string> = new Set();
-    lot.requests.forEach((request) => {
-      suppliers.add(request?.supplier?.name);
-    });
-    return Array.from(suppliers);
-  };
-
-  const uniqueSuppliers = getUniqueSuppliers();
-
   useEffect(() => {
-    dispatch(lotMiddleware(Number(id)) as unknown as UnknownAction);
-    setData(lot);
-    setStatus(lot.lot.status);
-  }, []);
+    const fetchList = async () => {
+      try {
+        const listData = await getListForSupplierByEmail(email ?? "", Number(id));
+        setData(listData);
+        setStatus(listData.list.status);
+      } catch (error: any) {
+        console.error("Ошибка при получении данных о группах:", error.message);
+      }
+    };
 
-  useEffect(() => {
-    setData(lot);
-    setStatus(lot.lot.status);
-  }, [lot]);
+    fetchList();
+  }, [dispatch]);
 
   const firstColumn = useMemo(
     () => [
       columnHelper.accessor("id", {
         header: () => (
           <>
-            <Table
-              style={{ border: "1px solid #ddd"}}
-            >
-              Позиции лота
-            </Table>
+            <Table style={{ border: "1px solid #ddd" }}>Позиции лота</Table>
             <TableRow
               style={{ justifyContent: "space-between", width: "100%" }}
             >
@@ -154,6 +141,15 @@ function LotInfo() {
     });
     return minPrices;
   };
+  const getUniqueSuppliers = () => {
+    const suppliers: Set<string> = new Set();
+    list.requests.forEach((request: Requests) => {
+      suppliers.add(request?.supplier?.name);
+    });
+    return Array.from(suppliers);
+  };
+
+  const uniqueSuppliers = getUniqueSuppliers();
 
   const minTotalPrices = getMinTotalPrices();
 
@@ -180,12 +176,10 @@ function LotInfo() {
                 )
               }
             >
-              {supplier}
+              {/* {supplier} */}
             </Table>
             <TableRow>
-              {role === Role.SupplierSpecialist && (
-                <TableCell style={{ border: "none", width: "10%" }}></TableCell>
-              )}
+              <TableCell style={{ border: "none", width: "10%" }}></TableCell>
               <TableCell style={{ border: "none", width: "60%" }}>
                 Наименование
               </TableCell>
@@ -211,26 +205,6 @@ function LotInfo() {
             matchingRequests.length > 0 ? (
               matchingRequests.map((req, index) => (
                 <TableRow hover key={index}>
-                  {role === Role.SupplierSpecialist && (
-                    <TableCell style={{ border: "none", width: "10%" }}>
-                      <Checkbox
-                        disabled={
-                          selectedRequests[req.positionId] !== undefined &&
-                          req.id !== selectedRequests[req.positionId]
-                        }
-                        checked={req.id === selectedRequests[req.positionId]}
-                        onChange={(event) => {
-                          handleCheckboxChange(
-                            event,
-                            req.positionId,
-                            req.id,
-                            req.count,
-                            req.priceForOne
-                          );
-                        }}
-                      />
-                    </TableCell>
-                  )}
                   <TableCell style={{ width: "60%", border: "none" }}>
                     {req.itemName}
                   </TableCell>
@@ -257,7 +231,7 @@ function LotInfo() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={role === Role.SupplierSpecialist ? 5 : 4}
+                  colSpan={5}
                   style={{ textAlign: "center", border: "none" }}
                 >
                   Нет предложений
@@ -284,6 +258,45 @@ function LotInfo() {
   const handleCloseLot = () => {
     setStatus("Завершен");
     dispatch(Redux.Actions.Lots.completeLot(Number(id)));
+  };
+
+  const handleExport = () => {
+    const ws = XLSX.utils.json_to_sheet([
+      { Header: "ID Лота", Data: data.lot.id },
+      { Header: "Название", Data: data.lot.name },
+      { Header: "Создатель", Data: data.lot.lotCreator },
+      { Header: "Дата открытия", Data: data.lot.openDate },
+      { Header: "Дата закрытия", Data: data.lot.closeDate },
+      { Header: "Статус", Data: data.lot.status },
+    ]);
+
+    XLSX.utils.sheet_add_json(
+      ws,
+      [
+        {
+          Header: "ID",
+          Header2: "Наименование",
+          Header3: "Цена за шт.",
+          Header4: "Количество",
+          Header5: "Поставщик",
+          Header6: "Общая стоимость",
+        },
+        ...data.requests.map((req) => ({
+          Header: req.positionId,
+          Header2: req.itemName,
+          Header3: req.priceForOne,
+          Header4: req.count,
+          Header5: req.supplier?.name,
+          Header6: req.priceForOne * req.count,
+        })),
+      ],
+      { skipHeader: true, origin: "A8" }
+    );
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Lot Info");
+
+    XLSX.writeFile(wb, `Lot_${data.lot.id}.xlsx`);
   };
 
   return (
@@ -337,7 +350,7 @@ function LotInfo() {
           }}
         >
           <Table
-            className="table-lotsInfo"
+            className="table-listsInfo"
             style={{ border: "1px solid #ddd", width: getWidth() - 200 }}
             padding="normal"
           >
@@ -379,24 +392,19 @@ function LotInfo() {
             </TableBody>
           </Table>
         </div>
-        {role === Role.SupplierSpecialist && (
-          <Button
-            disabled={!(Object.keys(selectedRequests).length > 0)}
-            variant="contained"
-            onClick={handleCloseLot}
-          >
-            Завершить лот
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          style={{ backgroundColor: "#4CAF50" }}
+          onClick={handleExport}
+        >
+          Экспорт в Excel
+        </Button>
         <div className="Sidebar">
           <ul>
             <li>
-              <a href="#" onClick={() => navigate("/lots")}>
+              <a href="#" onClick={() => navigate(-1)}>
                 Вернуться к лотам
               </a>
-            </li>
-            <li>
-              <Button onClick={() => navigate("/createlot")}>Создать</Button>
             </li>
           </ul>
         </div>
@@ -405,4 +413,4 @@ function LotInfo() {
   );
 }
 
-export default LotInfo;
+export default LotRequests;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Header from "../../components/Header";
+import Header from "components/Header";
 import "./styles.css";
 import { Redux } from "store";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,11 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Radio,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  RadioGroup,
 } from "@mui/material";
 import {
   createColumnHelper,
@@ -22,11 +27,10 @@ import { lotsMiddleware } from "store/middlewares";
 import { UnknownAction } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
 import { Lot } from "interfaces/lots";
+import { getWidth } from "utils/width";
 
 const columnHelper = createColumnHelper<Lot>();
-const getWidth = () => {
-  return window.innerWidth;
-};
+
 const columns: any = [
   columnHelper.accessor("id", {
     header: () => "№ Лота",
@@ -42,9 +46,35 @@ const columns: any = [
   }),
   columnHelper.accessor("closeDate", {
     header: () => "Дата закрытия",
-    cell: (info) => info.renderValue(),
+    cell: (info) => {
+      const { row } = info;
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span>{info.renderValue()}</span>
+          {row.original.status === "В работе" && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Add your logic to extend the lot here
+                console.log(`Extend lot ${row.original.id}`);
+              }}
+            >
+              Продлить лот
+            </Button>
+          )}
+        </div>
+      );
+    },
   }),
-  columnHelper.accessor("rules.paymentMethod", {
+  columnHelper.accessor("rules.paymentMethodId", {
     header: () => "Дней до конца",
     cell: (info) => {
       const { row } = info;
@@ -113,8 +143,8 @@ function Lots() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus);
+  const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStatus((event.target as HTMLInputElement).value);
   };
 
   return (
@@ -130,7 +160,7 @@ function Lots() {
           display: "flex",
         }}
       >
-        <Header></Header>
+        <Header />
         <div
           style={{
             height: 40,
@@ -194,26 +224,38 @@ function Lots() {
           </TableBody>
         </Table>
         <div className="Sidebar" style={{ border: "1px solid #ddd" }}>
-          <ul>
-            <li>
-              <a href="#" onClick={() => handleStatusChange("В работе")}>
-                В работе
-              </a>
-            </li>
-            <li>
-              <a href="#" onClick={() => handleStatusChange("На оформлении")}>
-                На оформлении
-              </a>
-            </li>
-            <li>
-              <a href="#" onClick={() => handleStatusChange("Завершен")}>
-                Завершенные
-              </a>
-            </li>
-            <li>
-              <Button onClick={() => navigate("/createlot")}>Создать</Button>
-            </li>
-          </ul>
+          <FormControl component="fieldset" style={{ marginLeft: 16 }}>
+            <FormLabel component="legend">Статус лота</FormLabel>
+            <RadioGroup
+              aria-label="status"
+              name="status"
+              value={status}
+              onChange={handleStatusChange}
+            >
+              <FormControlLabel
+                value="В работе"
+                control={<Radio />}
+                label="В работе"
+              />
+              <FormControlLabel
+                value="На оформлении"
+                control={<Radio />}
+                label="На оформлении"
+              />
+              <FormControlLabel
+                value="Завершен"
+                control={<Radio />}
+                label="Завершенные"
+              />
+            </RadioGroup>
+          </FormControl>
+          <Button
+            onClick={() => navigate("/createlot")}
+            style={{ marginLeft: 16, marginTop: 16 }}
+            variant="outlined"
+          >
+            Создать лот
+          </Button>
         </div>
       </div>
     </div>

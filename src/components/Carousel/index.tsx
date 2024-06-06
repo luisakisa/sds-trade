@@ -134,7 +134,7 @@ const Carousel = () => {
     <div className="carousel-container">
       <SwipeCarousel
         className="carousel"
-        show={3}
+        show={5}
         slide={3}
         swiping={true}
         leftArrow={

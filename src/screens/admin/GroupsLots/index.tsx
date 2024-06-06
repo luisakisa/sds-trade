@@ -82,6 +82,7 @@ function GroupsLots() {
               <TableCell>№ Группы</TableCell>
               <TableCell>Название группы</TableCell>
               <TableCell>Руководитель</TableCell>
+              <TableCell>Подписанные пользователи</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -96,12 +97,25 @@ function GroupsLots() {
                 <TableCell>{group.name}</TableCell>
                 <TableCell>
                   {group.managerPost +
-                    ":" +
+                    ": " +
                     group.managerLastName +
                     " " +
                     group.managerFirstName +
                     " " +
                     group.managerMiddleName}
+                </TableCell>
+                <TableCell>
+                  {group.signer.map((signer) => (
+                    <div key={signer.post}>
+                      {signer.post +
+                        ": " +
+                        signer.firstName +
+                        " " +
+                        signer.lastName +
+                        " " +
+                        signer.middleName}
+                    </div>
+                  ))}
                 </TableCell>
               </TableRow>
             ))}

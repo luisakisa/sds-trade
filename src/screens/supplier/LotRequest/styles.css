@@ -33,3 +33,10 @@ padding-top: 30px;
   z-index: 9999;
 }
 
+.plus-icon {
+  cursor: pointer;
+}
+
+.delete-icon {
+  cursor: pointer;
+}
