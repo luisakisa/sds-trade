@@ -32,12 +32,12 @@ import { HandySvg } from "handy-svg";
 const columnHelper = createColumnHelper<Position>();
 
 function LotInfo() {
-  const id = useParams<{ id: string }>().id;
+  const lotId = useParams<{ id: string }>().id;
   const dispatch = useDispatch();
   const lot = useSelector(Redux.Selectors.LotSelectors.getState);
   const [status, setStatus] = useState("В работе");
   const [data, setData] = useState(lot);
-  const { role } = useSelector(Redux.Selectors.AuthSelectors.getState);
+  const { role, id } = useSelector(Redux.Selectors.AuthSelectors.getState);
   const [selectedRequests, setSelectedRequests] = useState<
     Record<number, number>
   >({});
@@ -56,7 +56,8 @@ function LotInfo() {
   const uniqueSuppliers = getUniqueSuppliers();
 
   useEffect(() => {
-    dispatch(lotMiddleware(Number(id)) as unknown as UnknownAction);
+    dispatch(lotMiddleware(Number(lotId)) as unknown as UnknownAction);
+    role === Role.Supplier && lot.requests.filter((req: Requests) => req.supplier?.id === id);
     setData(lot);
     setStatus(lot.lot.status);
   }, []);
@@ -227,7 +228,6 @@ function LotInfo() {
               req.supplier?.name === supplier && req.positionId === position.id
           );
 
-          // Filter only winning requests if status is "Завершен"
           const filteredRequests =
             status === "Завершен"
               ? matchingRequests.filter(
@@ -317,7 +317,7 @@ function LotInfo() {
 
   const handleCloseLot = () => {
     setStatus("Завершен");
-    dispatch(Redux.Actions.Lots.completeLot(Number(id)));
+    dispatch(Redux.Actions.Lots.completeLot(Number(lotId)));
   };
 
   const handleExport = () => {

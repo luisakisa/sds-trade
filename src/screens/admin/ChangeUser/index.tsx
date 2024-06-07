@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Header from "components/Header";
 import "./styles.css";
-import {
-  Button,
-  List,
-  TextField,
-} from "@mui/material";
+import { Button, List, TextField } from "@mui/material";
 import { deleteUser, getUsers, updateUser } from "api/users";
 import { useParams } from "react-router-dom";
 
 function User() {
   const { id } = useParams();
 
-  const [user, setUser] = useState<
-    SupplierFullData
-  >();
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -43,7 +37,7 @@ function User() {
 
   const handleSubmit = async () => {
     try {
-       const response = await updateUser(parseInt(id ?? ''), user ?? undefined);
+      const response = await updateUser(parseInt(id ?? ""), user ?? undefined);
 
       if (response.ok) {
         console.log("Данные успешно отправлены на сервер");
@@ -57,7 +51,10 @@ function User() {
 
   const handleDelete = async () => {
     try {
-      const response = await deleteUser(parseInt(id ?? ''));
+      const response = await deleteUser(
+        parseInt(id ?? ""),
+        user?.role?.roleName
+      );
 
       if (response.ok) {
         console.log("Данные успешно удалены на сервер");
@@ -104,14 +101,12 @@ function User() {
             helperText="Email"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleChange}
-
           />
           <TextField
             label={user?.password}
             helperText="Пароль"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleChange}
-
           />
           {user && "groupEtsId" in user && (
             <TextField
@@ -119,7 +114,6 @@ function User() {
               helperText="Группа"
               style={{ marginBottom: 30, marginRight: 30 }}
               onChange={handleChange}
-
             />
           )}
           {user && "typeOfBusiness" in user && (
@@ -130,79 +124,73 @@ function User() {
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
               />
-              {/* variant='filled' */}
               <TextField
                 label={user.company}
                 helperText="Компания"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.firstName}
                 helperText="Имя"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.lastName}
                 helperText="Фамилия"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.middleName}
                 helperText="Отчество"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.phoneNumber}
                 helperText="Телефон"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.regionOrAddress}
                 helperText="Регион/адрес"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.site}
                 helperText="Сайт"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.inn}
                 helperText="ИНН"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
               <TextField
                 label={user.kpp}
                 helperText="КПП"
                 style={{ marginBottom: 30, marginRight: 30 }}
                 onChange={handleChange}
-
               />
             </>
           )}
         </List>
         <Button variant="contained" onClick={handleSubmit}>
-            Сохранить
-          </Button>
-        <Button variant="contained" onClick={handleDelete} style={{ marginTop: 20, backgroundColor: "#f56464" }}>
-            Удалить пользователя
-          </Button>
+          Сохранить
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleDelete}
+          style={{ marginTop: 20, backgroundColor: "#f56464" }}
+        >
+          Удалить пользователя
+        </Button>
       </div>
     </div>
   );

@@ -30,9 +30,9 @@ export const updateUser = async (
   }
 };
 
-export const deleteUser = async (id: number) => {
+export const deleteUser = async (userId: number, roleName: string) => {
   try {
-    const response = await axios.delete(API_URL + id,{
+    const response = await axios.delete(API_URL + `/users/${userId}/roles/${roleName}`,{
       headers: getHeaders(),
     }
     );

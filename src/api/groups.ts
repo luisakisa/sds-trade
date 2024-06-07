@@ -30,12 +30,10 @@ export const createGroup = async (group: Group) => {
   }
 };
 
-export const updateGroup = async (group: Group) => {
+export const updateGroup = async (group: any, id: number) => {
   try {
-    const response = await axios.put(API_URL, group, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await axios.put(API_URL+'/'+id, group, {
+      headers: getHeaders(),
     });
     console.log(response.data);
     return response.status === 200 ? response.data : null;
@@ -48,9 +46,7 @@ export const updateGroup = async (group: Group) => {
 export const deleteGroup = async (id: number) => {
   try {
     const response = await axios.delete(API_URL+id, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
     });
     console.log(response.data);
     return response.status === 200 ? response.data : null;

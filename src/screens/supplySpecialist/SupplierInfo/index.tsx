@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Header from "components/Header"; // Предполагаем, что у вас есть компонент Header
-import "./style.css"; // Подключение стилей
+import Header from "components/Header"; 
+import "./style.css";
 import { getSupplier } from "api/supplier";
 import { useParams } from "react-router-dom";
 import Profile from "assets/icon/profile.svg";

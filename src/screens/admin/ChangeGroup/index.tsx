@@ -10,30 +10,7 @@ import { useParams } from "react-router-dom";
 function ChangeGroup() {
   const { id } = useParams();
 
-  const [group, setGroup] = useState<
-    Group 
-  >();
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const groupsData = await getGroups();
-        groupsData.forEach((u: Group) => {
-          if (id && u.id === parseInt(id)) {
-            setGroup(u);
-          }
-        });
-      } catch (error: any) {
-        console.error(
-          "Ошибка при получении данных о пользователях:",
-          error.message
-        );
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
+  const [group, setGroup] = useState<Group | undefined>();
   const [name, setName] = useState<string>("");
   const [managerPost, setManagerPost] = useState<string>("");
   const [managerFirstName, setManagerFirstName] = useState<string>("");
@@ -44,6 +21,35 @@ function ChangeGroup() {
   const [signerFirstName, setSignerFirstName] = useState<string>("");
   const [signerLastName, setSignerLastName] = useState<string>("");
   const [signerMiddleName, setSignerMiddleName] = useState<string>("");
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const groupsData = await getGroups();
+        groupsData.forEach((u: Group) => {
+          if (id && u.id === parseInt(id)) {
+            setGroup(u);
+            setName(u.name || "");
+            setManagerPost(u.managerPost || "");
+            setManagerFirstName(u.managerFirstName || "");
+            setManagerLastName(u.managerLastName || "");
+            setManagerMiddleName(u.managerMiddleName || "");
+
+            if (u.signer && u.signer.length > 0) {
+              setSignerPost(u.signer[0].post || "");
+              setSignerFirstName(u.signer[0].firstName || "");
+              setSignerLastName(u.signer[0].lastName || "");
+              setSignerMiddleName(u.signer[0].middleName || "");
+            }
+          }
+        });
+      } catch (error: any) {
+        console.error("Ошибка при получении данных о группах:", error.message);
+      }
+    };
+
+    fetchGroups();
+  }, [id]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -94,22 +100,20 @@ function ChangeGroup() {
   };
 
   const handleCreateGroup = async () => {
-    await updateGroup({
-      id: Number(id),
-      name,
-      managerPost,
-      managerFirstName,
-      managerLastName,
-      managerMiddleName,
-      signer: [
+    try {
+      await updateGroup(
         {
-          post: signerPost,
-          firstName: signerFirstName,
-          lastName: signerLastName,
-          middleName: signerMiddleName,
+          name,
+          managerPost,
+          managerFirstName,
+          managerLastName,
+          managerMiddleName,
         },
-      ],
-    });
+        Number(id)
+      );
+    } catch (error: any) {
+      console.error("Ошибка при создании группы:", error.message);
+    }
   };
 
   const handleDeleteGroup = async () => {
@@ -141,36 +145,40 @@ function ChangeGroup() {
         <TextField
           id="outlined-basic"
           name="name"
-          helperText={group?.name}
-          label={"Название"}
+          helperText={group?.name || ""}
+          label="Название"
           style={{ marginBottom: 30, marginRight: 30 }}
           onChange={handleNameChange}
+          value={name}
         />
         <br />
         <List sx={{ width: "100%", bgcolor: "background.paper" }}>
           <TextField
             id="outlined-basic"
             name="managerPost"
-            label={group?.managerPost}
-            helperText="Должность"
+            label="Должность"
+            helperText={group?.managerPost || ""}
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleManagerPostChange}
-          />
-          <TextField
-            id="outlined-basic"
-            name="managerFirstName"
-            helperText="Фамилия"
-            style={{ marginBottom: 30, marginRight: 30 }}
-            onChange={handleManagerFirstNameChange}
-            label={group?.managerFirstName}
+            value={managerPost}
           />
           <TextField
             id="outlined-basic"
             name="managerLastName"
-            helperText="Имя"
+            helperText="Фамилия"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleManagerLastNameChange}
-            label={group?.managerLastName}
+            value={managerLastName}
+            label="Фамилия"
+          />
+          <TextField
+            id="outlined-basic"
+            name="managerFirstName"
+            helperText="Имя"
+            style={{ marginBottom: 30, marginRight: 30 }}
+            onChange={handleManagerFirstNameChange}
+            value={managerFirstName}
+            label="Имя"
           />
           <TextField
             id="outlined-basic"
@@ -178,53 +186,60 @@ function ChangeGroup() {
             helperText="Отчество"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleManagerMiddleNameChange}
-            label={group?.managerMiddleName}
+            value={managerMiddleName}
+            label="Отчество"
           />
         </List>
-        <label style={{ fontWeight: 600 }}>
+        {/* <label style={{ fontWeight: 600 }}>
           Подпись в подножии конкурентного листа:
         </label>
         <List sx={{ width: "100%", bgcolor: "background.paper" }}>
           <TextField
-            id={`position`}
-            name={`signer-position`}
+            id="position"
+            name="signer-position"
             helperText="Должность"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleSignerPostChange}
-            label={group?.signer[0].post}
+            value={signerPost}
+            label="Должность"
           />
           <TextField
-            id={`firstName`}
-            name={`signer-firstName`}
+            id="lastName"
+            name="signer-lastName"
             helperText="Фамилия"
             style={{ marginBottom: 30, marginRight: 30 }}
-            onChange={handleSignerFirstNameChange}
-            label={group?.signer[0].firstName}
+            onChange={handleSignerLastNameChange}
+            value={signerLastName}
+            label="Фамилия"
           />
           <TextField
-            id={`lastName`}
-            name={`signer-lastName`}
+            id="firstName"
+            name="signer-firstName"
             helperText="Имя"
             style={{ marginBottom: 30, marginRight: 30 }}
-            onChange={
-              handleSignerLastNameChange
-            }
-            label={group?.signer[0].lastName}
+            onChange={handleSignerFirstNameChange}
+            value={signerFirstName}
+            label="Имя"
           />
           <TextField
-            id={`middleName`}
-            name={`signer-middleName`}
+            id="middleName"
+            name="signer-middleName"
             helperText="Отчество"
             style={{ marginBottom: 30, marginRight: 30 }}
             onChange={handleSignerMiddleNameChange}
-            label={group?.signer[0].middleName}
+            value={signerMiddleName}
+            label="Отчество"
           />
-        </List>
+        </List> */}
         <Button variant="contained" onClick={handleCreateGroup}>
           Сохранить
         </Button>
         <br />
-        <Button variant="contained" onClick={handleDeleteGroup} style={{ marginTop: 20, backgroundColor: "#f56464" }}>
+        <Button
+          variant="contained"
+          onClick={handleDeleteGroup}
+          style={{ marginTop: 20, backgroundColor: "#f56464" }}
+        >
           Удалить группу
         </Button>
       </div>

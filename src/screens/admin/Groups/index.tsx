@@ -45,7 +45,7 @@ function Groups() {
             marginBottom: 40,
           }}
         >
-          Создать новую группу
+          Редактировать группу
         </text>
         <br />
         <br />
@@ -63,7 +63,15 @@ function Groups() {
             >
               <ListItemText primary={group.id} />
               <ListItemText primary={group.name} />
-              <ListItemText primary={group.name} />
+              <ListItemText>
+                {group.managerPost +
+                  ": " +
+                  group.managerLastName +
+                  " " +
+                  group.managerFirstName +
+                  " " +
+                  group.managerMiddleName}
+              </ListItemText>
             </ListItemButton>
           ))}
         </List>

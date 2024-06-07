@@ -46,7 +46,7 @@ function Profile() {
         >
           Выйти
         </Button>
-        <div style={{ marginTop: 40 }}>
+        {/* <div style={{ marginTop: 40 }}>
           <text
             style={{
               fontSize: 20,
@@ -82,7 +82,7 @@ function Profile() {
               Сохранить
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

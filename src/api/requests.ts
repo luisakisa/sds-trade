@@ -17,10 +17,10 @@ export const getRequests = async () => {
   }
 };
 
-export const addRequest = async (request: Requests) => {
+export const addRequests = async (lotId: number,positionId: number, request: any) => {
   try {
     const response = await axios.post(
-      API_URL + `/${request.positionId}`,
+      API_URL + `/lots/${lotId}/positions/${positionId}`,
       request,
       {
         headers: getHeaders(),

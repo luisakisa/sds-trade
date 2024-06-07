@@ -87,14 +87,14 @@ function Header() {
                           Лоты
                         </Link>
                       </li>
-                      <li className="nav-item">
+                      {/* <li className="nav-item">
                         <Link
                           className={getNavLinkClass("/requests")}
                           to="/requests"
                         >
                           Мои заявки
                         </Link>
-                      </li>
+                      </li> */}
                     </>
                   ))}
               </>

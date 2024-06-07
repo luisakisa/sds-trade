@@ -1,7 +1,7 @@
 import axios from "axios";
-import { DOMAIN } from "api/configs/path";
+import { DOMAIN, getHeaders } from "api/configs/path";
 
-const API_URL = DOMAIN + "/auth/signup";
+const API_URL = DOMAIN + "/auth/reg";
 
 interface UserData {
     firstName?: string;
@@ -23,12 +23,10 @@ interface UserData {
   }
   
 
-export const signUp = async (userData: UserData) => {
+export const signUp = async (userData: any) => {
   try {
     const response = await axios.post(API_URL, userData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
     });
     console.log(response.data);
     return response.data;

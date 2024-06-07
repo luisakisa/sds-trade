@@ -377,7 +377,7 @@ function LotInfo() {
             </TableBody>
           </Table>
         </div>
-        {role === Role.SupplierSpecialist && (
+        {role === Role.Admin && (
           <Button
             variant="contained"
             style={{ backgroundColor: "#f56464" }}

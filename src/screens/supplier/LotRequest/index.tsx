@@ -25,13 +25,14 @@ import { UnknownAction } from "@reduxjs/toolkit";
 import { Requests } from "interfaces/lots";
 import { Redux } from "store";
 import { HandySvg } from "handy-svg";
+import { addRequests } from "api/requests";
 
 interface RequestsState {
   [key: number]: Requests[];
 }
 
 function LotRequest() {
-  const { id } = useParams();
+  const lotId = useParams<{ id: string }>().id;
   const dispatch = useDispatch();
   const lot = useSelector(Redux.Selectors.LotSelectors.getState);
   const [data, setData] = useState(lot);
@@ -40,12 +41,12 @@ function LotRequest() {
   const [deliveryMethod, setDeliveryMethod] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [comment, setComment] = useState<string>("");
-
+  const { id } = useSelector(Redux.Selectors.AuthSelectors.getState);
 
   useEffect(() => {
-    dispatch(lotMiddleware(Number(id)) as unknown as UnknownAction);
+    dispatch(lotMiddleware(Number(lotId)) as unknown as UnknownAction);
     setData(lot);
-  }, [id]);
+  }, [lotId]);
 
   useEffect(() => {
     setData(lot);
@@ -54,7 +55,10 @@ function LotRequest() {
   const addRequest = (positionId: number) => {
     setRequests((prev: any) => ({
       ...prev,
-      [positionId]: [...(prev[positionId] || []), { amount: "" }],
+      [positionId]: [
+        ...(prev[positionId] || []),
+        { priceForOne: "", count: "", itemName: "", deliveryTime: "" },
+      ],
     }));
   };
 
@@ -69,18 +73,43 @@ function LotRequest() {
     });
   };
 
-  const handleInputChange = (positionId: number, index: number, event: any) => {
-    const value = event.target.value;
+  const handleInputChange = (
+    positionId: number,
+    index: number,
+    field: string,
+    value: string
+  ) => {
     setRequests((prev: any) => {
       const newRequests = { ...prev };
-      newRequests[positionId][index].amount = value;
+      newRequests[positionId][index][field] = value;
       return newRequests;
     });
   };
 
-  const handleSaveRequests = () => {
-    console.log("Saving requests", requests);
-    // Example API call to save requests
+  const handleSaveRequests = async () => {
+    try {
+      for (const positionId in requests) {
+        const requestData = {
+          data: requests[positionId],
+          requestFiles: {
+            path: "/path/to/file",
+            supplierId: id,
+          },
+          requestRules: {
+            comment,
+            paymentMethodId: 1,
+            shippingMethodId: 1,
+            paymentValue: 1000,
+          },
+        };
+        await addRequests(Number(lotId), Number(positionId), requestData);
+      }
+      alert("Requests saved successfully!");
+      navigate(`/lot/${lotId}`);
+    } catch (error) {
+      console.error("Error saving requests:", error);
+      alert("Failed to save requests.");
+    }
   };
 
   return (
@@ -113,7 +142,7 @@ function LotRequest() {
               <TableCell>Название позиции</TableCell>
               <TableCell>Количество</TableCell>
               <TableCell>Единица измерения</TableCell>
-              <TableCell>Стоимость</TableCell>
+              <TableCell>Стоимость (без НДС)</TableCell>
               <TableCell>Добавить заявку</TableCell>
             </TableRow>
           </TableHead>
@@ -144,7 +173,12 @@ function LotRequest() {
                           label="Наименование"
                           value={request.itemName}
                           onChange={(event) =>
-                            handleInputChange(position.id, index, event)
+                            handleInputChange(
+                              position.id,
+                              index,
+                              "itemName",
+                              event.target.value
+                            )
                           }
                           fullWidth
                         />
@@ -152,7 +186,12 @@ function LotRequest() {
                           label="Стоимость"
                           value={request.priceForOne}
                           onChange={(event) =>
-                            handleInputChange(position.id, index, event)
+                            handleInputChange(
+                              position.id,
+                              index,
+                              "priceForOne",
+                              event.target.value
+                            )
                           }
                           fullWidth
                         />
@@ -160,7 +199,12 @@ function LotRequest() {
                           label="Количество"
                           value={request.count}
                           onChange={(event) =>
-                            handleInputChange(position.id, index, event)
+                            handleInputChange(
+                              position.id,
+                              index,
+                              "count",
+                              event.target.value
+                            )
                           }
                           fullWidth
                         />
@@ -168,7 +212,12 @@ function LotRequest() {
                           label="Дней доставки"
                           value={request.deliveryTime}
                           onChange={(event) =>
-                            handleInputChange(position.id, index, event)
+                            handleInputChange(
+                              position.id,
+                              index,
+                              "deliveryTime",
+                              event.target.value
+                            )
                           }
                           fullWidth
                         />
@@ -193,77 +242,77 @@ function LotRequest() {
           </TableBody>
         </Table>
         <br />
-          <br />
+        <br />
         <label>Общая информация: </label>
-          <br />
-          <br />
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Комментарий"
-            style={{
-              marginBottom: 30,
-              marginRight: 30,
-              width: "100%",
-              fontFamily: "Montserrat",
-              fontSize: 16,
-              padding: 10,
-              boxSizing: "border-box",
-            }}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-          <div className="radio-group">
-            <div>
-              <label>Способ доставки: </label>
-              <RadioGroup
-                aria-label="delivery-method"
-                name="delivery-method"
-                value={deliveryMethod}
-                onChange={(e) => setDeliveryMethod(e.target.value)}
-              >
-                <FormControlLabel
-                  value="pickup"
-                  control={<Radio />}
-                  label="Самовывоз"
-                />
-                <FormControlLabel
-                  value="supplier"
-                  control={<Radio />}
-                  label="Поставщиком"
-                />
-                <FormControlLabel
-                  value="transport-company"
-                  control={<Radio />}
-                  label="Транспортной компанией"
-                />
-              </RadioGroup>
-            </div>
-            <div style={{ marginTop: 20 }}>
-              <label>Способ оплаты: </label>
-              <RadioGroup
-                aria-label="payment-method"
-                name="payment-method"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                <FormControlLabel
-                  value="prepayment"
-                  control={<Radio />}
-                  label="Предоплата"
-                />
-                <FormControlLabel
-                  value="on-delivery"
-                  control={<Radio />}
-                  label="По факту поставки"
-                />
-                <FormControlLabel
-                  value="deferred-payment"
-                  control={<Radio />}
-                  label="Отсрочка платежа"
-                />
-              </RadioGroup>
-            </div>
+        <br />
+        <br />
+        <TextareaAutosize
+          minRows={3}
+          placeholder="Комментарий"
+          style={{
+            marginBottom: 30,
+            marginRight: 30,
+            width: "100%",
+            fontFamily: "Montserrat",
+            fontSize: 16,
+            padding: 10,
+            boxSizing: "border-box",
+          }}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <div className="radio-group">
+          <div>
+            <label>Способ доставки: </label>
+            <RadioGroup
+              aria-label="delivery-method"
+              name="delivery-method"
+              value={deliveryMethod}
+              onChange={(e) => setDeliveryMethod(e.target.value)}
+            >
+              <FormControlLabel
+                value="1"
+                control={<Radio />}
+                label="Самовывоз"
+              />
+              <FormControlLabel
+                value="2"
+                control={<Radio />}
+                label="Поставщиком"
+              />
+              <FormControlLabel
+                value="3"
+                control={<Radio />}
+                label="Транспортной компанией"
+              />
+            </RadioGroup>
           </div>
+          <div style={{ marginTop: 20 }}>
+            <label>Способ оплаты: </label>
+            <RadioGroup
+              aria-label="payment-method"
+              name="payment-method"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            >
+              <FormControlLabel
+                value="1"
+                control={<Radio />}
+                label="Предоплата"
+              />
+              <FormControlLabel
+                value="2"
+                control={<Radio />}
+                label="По факту поставки"
+              />
+              <FormControlLabel
+                value="3"
+                control={<Radio />}
+                label="Отсрочка платежа"
+              />
+            </RadioGroup>
+          </div>
+        </div>
         <Button
           variant="contained"
           onClick={handleSaveRequests}

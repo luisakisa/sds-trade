@@ -8,11 +8,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { groupsMiddleware } from "store/middlewares";
 import { UnknownAction } from "redux";
 import { Redux } from "store";
+import { Role } from "interfaces/auth";
+import { getTypesOfBusiness } from "api/typesOfBusiness";
+import { getGroups } from "api/groups";
+import { useNavigate } from "react-router-dom";
+import { TextField, MenuItem, Select, InputLabel, FormControl, Checkbox, ListItemText, OutlinedInput, SelectChangeEvent } from "@mui/material";
 
 const SignUpCard: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [typeOfBusiness, setTypeOfBusiness] = useState<string>("");
+  const [typeOfBusinessId, setTypeOfBusinessId] = useState<number | null>(1);
   const [company, setCompany] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
@@ -28,175 +33,80 @@ const SignUpCard: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string>("");
   const [errorFill, setErrorFill] = useState<string>("");
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
-  };
-
-  const [groupsNames, setGroupsNames] = useState<string[]>([]);
-
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([1,2]);
+  
   const groups = useSelector(Redux.Selectors.GroupsSelectors.getState);
-
   const dispatch = useDispatch();
+  const [typesOfBusiness, setTypesOfBusiness] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTypesOfBusiness = async () => {
+      try {
+        const typesData = await getTypesOfBusiness();
+        setTypesOfBusiness(typesData);
+      } catch (error: any) {
+        console.error("Ошибка при получении типов бизнеса:", error.message);
+      }
+    };
+
+    fetchTypesOfBusiness();
+  }, []);
 
   useEffect(() => {
     dispatch(groupsMiddleware() as unknown as UnknownAction);
-    if (groups?.length > 0) {
-      const formattedGroups = groups.map((group) => group.name);
-      setGroupsNames(formattedGroups);
-    }
   }, [dispatch]);
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!checkPassword()) {
-      setPasswordError(
-        "Пароль должен содержать минимум 3 категории символов(большие, прописные буквы, цифры, спец. символы) и быть длиной не менее 8 символов"
-      );
+    if (!checkPassword(event.target.value)) {
+      setPasswordError("Пароль должен содержать минимум 3 категории символов(большие, прописные буквы, цифры, спец. символы) и быть длиной не менее 8 символов");
     } else {
       setPasswordError("");
     }
     setPassword(event.target.value);
   };
 
-  const handleTypeOfBusinessChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTypeOfBusiness(event.target.value);
-  };
-
-  const handleCompanyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCompany(event.target.value);
-  };
-
-  const handleFirstNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFirstName(event.target.value);
-  };
-
-  const handleMiddleNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setMiddleName(event.target.value);
-  };
-
-  const handleLastNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLastName(event.target.value);
-  };
-
-  const handlePhoneNumberChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setPhoneNumber(event.target.value);
-  };
-
-  const handleRegionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRegion(event.target.value);
-  };
-
-  const handleWebsiteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setWebsite(event.target.value);
-  };
-
-  const handleInnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setInn(value);
-    if (!/^\d+$/.test(value)) {
-      setInnError(true);
-    } else {
-      setInnError(false);
-    }
-  };
-
-  const handleKppChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setKpp(value);
-    if (!/^\d+$/.test(value)) {
-      setKppError(true);
-    } else {
-      setKppError(false);
-    }
-  };
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
-
-  const checkPassword = (): boolean => {
+  const checkPassword = (pass: string): boolean => {
     const minLength = 8;
-    const categories = [
-      /[A-Z]/, 
-      /[a-z]/, 
-      /\d/,
-      /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
-    ];
-
-    if (password.length < minLength) {
+    const categories = [/[A-Z]/, /[a-z]/, /\d/, /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/];
+    if (pass.length < minLength) {
       return false;
     }
-
-    const matchedCategories = categories.filter((category) =>
-      category.test(password)
-    );
+    const matchedCategories = categories.filter((category) => category.test(pass));
     return matchedCategories.length >= 3;
   };
-  const [isOn, setIsOn] = useState(false);
 
   const handleRegister = async () => {
-    if (!isOn) {
-      if (!email || !password || !typeOfBusiness || !company) {
-        setErrorFill("Пожалуйста, заполните все необходимые поля");
-
-        return;
-      }
-    } else {
-      if (
-        !region ||
-        !inn ||
-        !kpp ||
-        !firstName ||
-        !lastName ||
-        !middleName ||
-        !typeOfBusiness ||
-        !company ||
-        !password
-      ) {
-        setErrorFill("Пожалуйста, заполните все необходимые поля");
-        return;
-      }
+    if (!region || !inn || !kpp || !firstName || !lastName || !middleName || typeOfBusinessId === null || !company || !password) {
+      setErrorFill("Пожалуйста, заполните все необходимые поля");
+      return;
     }
-
     await signUp({
       firstName,
       lastName,
       middleName,
-      typeOfBusiness,
+      typeOfBusinessId,
       company,
       email,
       password,
-      role: isOn ? "Supplier" : "Supplier Specialist",
-      additionalData: {
-        phone: phoneNumber,
-        address: region,
-        nds: checked,
-        inn,
-        kpp,
-        website,
-      },
+      role: Role.Supplier,
+      phoneNumber,
+      regionOrAddress: region,
+      nds: checked,
+      inn,
+      kpp,
+      site: website,
+      groupEtsId: selectedGroups
     });
   };
 
-  const toggleSwitch = () => {
-    setIsOn(!isOn);
+  const handleGroupChange = (event:SelectChangeEvent<number[]>) => {
+    setSelectedGroups(event.target.value as number[]);
   };
 
   return (
     <div className="sign-up-card">
       <h2>Регистрация</h2>
-      <div style={{ marginBottom: 20 }}>
-        <label>Специалист по снабжению</label>
-        <Switch onChange={toggleSwitch}></Switch>
-        <label>Поставщик</label>
-      </div>
       <div style={{ display: "flex", flexDirection: "row", flex: 1 }}>
         <div className="column-group">
           <div className="form-group">
@@ -206,7 +116,7 @@ const SignUpCard: React.FC = () => {
               type="text"
               id="email"
               value={email}
-              onChange={handleEmailChange}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -221,149 +131,169 @@ const SignUpCard: React.FC = () => {
               required
             />
             {passwordError && (
-              <span
-                className="error-message"
-                style={{ color: "red", fontSize: 10, width: 290 }}
-              >
-                {passwordError}
-              </span>
+              <span className="error-message" style={{ color: "red", fontSize: 10, width: 290 }}>{passwordError}</span>
             )}
           </div>
-          {isOn && (
-            <>
-              <div className="form-group" style={{ maxWidth: 250 }}>
-                <label>Вид субъекта предпринимательства</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={typeOfBusiness}
-                  onChange={handleTypeOfBusinessChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Компания</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={company}
-                  onChange={handleCompanyChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Имя</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={firstName}
-                  onChange={handleFirstNameChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Фамилия</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={lastName}
-                  onChange={handleLastNameChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Отчество</label>
-                <input
-                  className="input-sign-up"
-                  type="text"
-                  value={middleName}
-                  onChange={handleMiddleNameChange}
-                  required
-                />
-              </div>
-            </>
-          )}
-        </div>
-        {isOn && (
-          <div className="column-group">
-            <div className="form-group">
-              <label>Номер телефона</label>
-              <input
-                className="input-sign-up"
-                type="text"
-                value={phoneNumber}
-                onChange={handlePhoneNumberChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Регион/адрес</label>
-              <input
-                className="input-sign-up"
-                type="text"
-                value={region}
-                onChange={handleRegionChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Сайт</label>
-              <input
-                className="input-sign-up"
-                type="text"
-                value={website}
-                onChange={handleWebsiteChange}
-                required
-              />
-            </div>
-            <div style={{ marginBottom: 20 }}>
-              <input
-                type="checkbox"
-                checked={checked}
-                onChange={handleCheckboxChange}
-              />
-              <label style={{ marginLeft: 8 }}>
-                Организация является плательщиком НДС
-              </label>
-            </div>
-            <div className="form-group">
-              <label>ИНН</label>
-              <input
-                className="input-sign-up"
-                type="text"
-                value={inn}
-                onChange={handleInnChange}
-                required
-              />
-              {innError && (
-                <span
-                  className="error-message"
-                  style={{ color: "red", fontSize: 10 }}
-                >
-                  Пожалуйста, введите числовое значение
-                </span>
-              )}
-            </div>
-            <div className="form-group">
-              <label>КПП</label>
-              <input
-                className="input-sign-up"
-                type="text"
-                value={kpp}
-                onChange={handleKppChange}
-                required
-              />
-              {kppError && (
-                <span
-                  className="error-message"
-                  style={{ color: "red", fontSize: 10 }}
-                >
-                  Пожалуйста, введите числовое значение
-                </span>
-              )}
-            </div>
+          {/* <div className="form-group" style={{ maxWidth: 250 }}>
+            <FormControl fullWidth>
+              <InputLabel id="type-of-business-label">Вид субъекта предпринимательства</InputLabel>
+              <Select
+                labelId="type-of-business-label"
+                id="type-of-business"
+                value={typeOfBusinessId}
+                onChange={(e) => setTypeOfBusinessId(e.target.value as number)}
+                input={<OutlinedInput label="Вид субъекта предпринимательства" />}
+              >
+                {typesOfBusiness.map((type) => (
+                  <MenuItem key={type.id} value={type.id}>{type.typeName}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div> */}
+          <div className="form-group">
+            <label>Компания</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              required
+            />
           </div>
-        )}
+          <div className="form-group">
+            <label>Имя</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Фамилия</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Отчество</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={middleName}
+              onChange={(e) => setMiddleName(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+        <div className="column-group">
+          <div className="form-group">
+            <label>Номер телефона</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Регион/адрес</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Сайт</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => setChecked(e.target.checked)}
+            />
+            <label style={{ marginLeft: 8 }}>Организация является плательщиком НДС</label>
+          </div>
+          <div className="form-group">
+            <label>ИНН</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={inn}
+              onChange={(e) => {
+                const value = e.target.value;
+                setInn(value);
+                if (!/^\d+$/.test(value)) {
+                  setInnError(true);
+                } else {
+                  setInnError(false);
+                }
+              }}
+              required
+            />
+            {innError && (
+              <span className="error-message" style={{ color: "red", fontSize: 10 }}>Пожалуйста, введите числовое значение</span>
+            )}
+          </div>
+          <div className="form-group">
+            <label>КПП</label>
+            <input
+              className="input-sign-up"
+              type="text"
+              value={kpp}
+              onChange={(e) => {
+                const value = e.target.value;
+                setKpp(value);
+                if (!/^\d+$/.test(value)) {
+                  setKppError(true);
+                } else {
+                  setKppError(false);
+                }
+              }}
+              required
+            />
+            {kppError && (
+              <span className="error-message" style={{ color: "red", fontSize: 10 }}>Пожалуйста, введите числовое значение</span>
+            )}
+          </div>
+          {/* <div className="form-group">
+            <FormControl fullWidth>
+              <InputLabel id="groups-label">Группы</InputLabel>
+              <Select
+                labelId="groups-label"
+                id="groups"
+                multiple
+                value={selectedGroups}
+                onChange={handleGroupChange}
+                input={<OutlinedInput label="Группы" />}
+                renderValue={(selected) => selected.map(id => groups.find(g => g.id === id)?.name).join(', ')}
+              >
+                {groups.map((group) => (
+                  <MenuItem key={group.id} value={group.id}>
+                    <Checkbox checked={selectedGroups.indexOf(group.id) > -1} />
+                    <ListItemText primary={group.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div> */}
+        </div>
       </div>
       {errorFill && (
         <div style={{ color: "red", marginBottom: 10 }}>{errorFill}</div>

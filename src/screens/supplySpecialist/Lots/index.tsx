@@ -63,7 +63,7 @@ const columns: any = [
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                // Add your logic to extend the lot here
+                
                 console.log(`Extend lot ${row.original.id}`);
               }}
             >

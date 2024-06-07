@@ -26,6 +26,7 @@ function GroupLots() {
     const fetchLots = async () => {
       try {
         const lotData = await getLotsByGroup(Number(id));
+        lotData.filter((lot: Lot) => lot.status === "В работе");
         setLots(lotData);
         setFilteredLots(lotData);
       } catch (error: any) {
