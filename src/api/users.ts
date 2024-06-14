@@ -15,6 +15,18 @@ export const getUsers = async () => {
   }
 };
 
+export const getUser = async (userId: number,role: string) => {
+  try {
+    const response = await axios.get(API_URL + `${userId}/roles/${role}`, {
+      headers: getHeaders(),
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    throw new Error("Ошибка");
+  }
+};
+
 export const updateUser = async (
   id: number,
   userData: SupplierFullData | SupplySpecialistFullData | undefined

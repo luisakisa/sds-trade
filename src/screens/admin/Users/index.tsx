@@ -6,15 +6,20 @@ import {
   ListItemButton,
   ListItemText,
   TextField,
-  Box
+  Box,
 } from "@mui/material";
 import { getUsers } from "api/users";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Redux } from "store";
+import { Role } from "interfaces/auth";
 
 function Users() {
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
+  const { role } = useSelector(Redux.Selectors.AuthSelectors.getState);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +32,8 @@ function Users() {
             ...userData.suppliers,
             ...userData.staff,
           ];
+          role === Role.SecuritySpecialist &&
+            allUsers.filter((user) => user.role?.roleName === "Supplier");
           setUsers(allUsers);
         } else {
           console.error("Ошибка: данные о пользователях не получены");
@@ -42,7 +49,7 @@ function Users() {
     fetchUsers();
   }, []);
 
-  function getRole(user: { role: { roleName: string; }; }) {
+  function getRole(user: { role: { roleName: string } }) {
     if (user.role && user.role.roleName) {
       switch (user.role.roleName) {
         case "Supply_specialist":
@@ -61,7 +68,7 @@ function Users() {
   }
 
   const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -105,10 +112,7 @@ function Users() {
               style={{ border: "1px solid #ddd", backgroundColor: "#f7f7f7" }}
               onClick={() => navigate(`/user/${user.id}`)}
             >
-              <ListItemText
-                primary={user.id}
-                style={{ textAlign: "left" }}
-              />
+              <ListItemText primary={user.id} style={{ textAlign: "left" }} />
               <ListItemText
                 primary={user.email}
                 style={{ textAlign: "left" }}

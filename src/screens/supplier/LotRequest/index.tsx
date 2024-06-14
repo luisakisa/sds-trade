@@ -170,7 +170,7 @@ function LotRequest() {
                     <TableRow key={`${position.id}-${index}`}>
                       <TableCell colSpan={3}>
                         <TextField
-                          label="Наименование"
+                          label="Альтернативное наименование"
                           value={request.itemName}
                           onChange={(event) =>
                             handleInputChange(

@@ -42,7 +42,8 @@ export const getLot = async(id:number) => {
   }
 };
 
-export const updateLot = async (id:number, lot: Lot) => {
+export const updateLot = async (id:number, lot: any) => {
+  console.log(lot);
   try {
     const response = await axios.put(API_URL + `/${id}`, lot, {
       headers: getHeaders(),

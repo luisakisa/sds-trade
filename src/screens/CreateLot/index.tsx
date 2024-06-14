@@ -24,6 +24,8 @@ import { addLot } from "api/lots";
 import { useSelector } from "react-redux";
 import { Redux } from "store";
 import * as XLSX from "xlsx";
+import { getPaymentMethods } from "api/paymentMethods";
+import { getShippingMethods } from "api/shippingMethods";
 
 function CreateLot() {
   const [name, setName] = useState<string>("");
@@ -40,8 +42,46 @@ function CreateLot() {
   const [endDate, setEndDate] = useState<string>("");
   const { id } = useSelector(Redux.Selectors.AuthSelectors.getState);
   const [canOwnWay, setCanOwnWay] = useState<boolean>(true);
+  const [paymentMethods, setPaymentMethods] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [shippingMethods, setShippingMethods] = useState<
+    { id: number; name: string }[]
+  >([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const paymentMethodsData = await getPaymentMethods();
+        setPaymentMethods(paymentMethodsData);
+      } catch (error: any) {
+        console.error(
+          "Ошибка при получении данных о методах оплаты:",
+          error.message
+        );
+      }
+    };
+
+    fetchPaymentMethods();
+  }, []);
+
+  useEffect(() => {
+    const fetchShippingMethods = async () => {
+      try {
+        const shippingMethodsData = await getShippingMethods();
+        setShippingMethods(shippingMethodsData);
+      } catch (error: any) {
+        console.error(
+          "Ошибка при получении данных о методах доставки:",
+          error.message
+        );
+      }
+    };
+
+    fetchShippingMethods();
+  }, []);
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -135,8 +175,8 @@ function CreateLot() {
         })),
         rules: {
           comment,
-          paymentMethodId: 1,
-          shippingMethodId: 1,
+          paymentMethodId:1,
+          shippingMethodId: 3,
         },
         statusId: 1,
       });
@@ -238,21 +278,14 @@ function CreateLot() {
                 value={deliveryMethod}
                 onChange={(e) => setDeliveryMethod(e.target.value)}
               >
-                <FormControlLabel
-                  value="pickup"
-                  control={<Radio />}
-                  label="Самовывоз"
-                />
-                <FormControlLabel
-                  value="supplier"
-                  control={<Radio />}
-                  label="Поставщиком"
-                />
-                <FormControlLabel
-                  value="transport-company"
-                  control={<Radio />}
-                  label="Транспортной компанией"
-                />
+                {shippingMethods.map((method: { id: number; name: string }) => (
+                  <FormControlLabel
+                    key={method.id}
+                    value={method.id}
+                    control={<Radio />}
+                    label={method.name}
+                  />
+                ))}
               </RadioGroup>
             </div>
             <div style={{ marginTop: 20 }}>
@@ -263,21 +296,14 @@ function CreateLot() {
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
-                <FormControlLabel
-                  value="prepayment"
-                  control={<Radio />}
-                  label="Предоплата"
-                />
-                <FormControlLabel
-                  value="on-delivery"
-                  control={<Radio />}
-                  label="По факту поставки"
-                />
-                <FormControlLabel
-                  value="deferred-payment"
-                  control={<Radio />}
-                  label="Отсрочка платежа"
-                />
+                {paymentMethods.map((method: { id: number; name: string }) => (
+                  <FormControlLabel
+                    key={method.id}
+                    value={method.id}
+                    control={<Radio />}
+                    label={method.name}
+                  />
+                ))}
               </RadioGroup>
             </div>
           </div>

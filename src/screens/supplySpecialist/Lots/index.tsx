@@ -28,6 +28,7 @@ import { UnknownAction } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router-dom";
 import { Lot } from "interfaces/lots";
 import { getWidth } from "utils/width";
+import { updateLot } from "api/lots";
 
 const columnHelper = createColumnHelper<Lot>();
 
@@ -57,19 +58,6 @@ const columns: any = [
           }}
         >
           <span>{info.renderValue()}</span>
-          {row.original.status === "В работе" && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                
-                console.log(`Extend lot ${row.original.id}`);
-              }}
-            >
-              Продлить лот
-            </Button>
-          )}
         </div>
       );
     },
@@ -97,7 +85,36 @@ const formatDate = (dateString: string): string => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear();
-  return `${day}.${month}.${year}`;
+  return `${year}-${month}-${day}`;
+};
+
+const extendLot = async (lot: Lot, updateData: () => void) => {
+  const extendedCloseDate = new Date(
+    lot.closeDate.replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1")
+  );
+  extendedCloseDate.setDate(extendedCloseDate.getDate() + 1);
+
+  const formattedCloseDate = formatDate(extendedCloseDate.toISOString());
+
+  const updatedLot = {
+    name: lot.name,
+    closeDate: formattedCloseDate,
+    statusId: 2,
+    canOwnWay: lot.canOwnWay,
+    rules: {
+      comment: lot.rules.comment,
+    },
+    filePath: lot.filePath,
+  };
+
+  try {
+    await updateLot(lot.id, updatedLot);
+    alert("Lot extended successfully!");
+    updateData(); // Call the callback to update the data
+  } catch (error) {
+    console.error("Error extending lot:", error);
+    alert("Failed to extend lot");
+  }
 };
 
 function Lots() {
@@ -147,6 +164,12 @@ function Lots() {
     setStatus((event.target as HTMLInputElement).value);
   };
 
+  const handleExtendLot = (lot: Lot) => {
+    extendLot(lot, () => {
+      dispatch(lotsMiddleware() as unknown as UnknownAction); // Refetch the lots after extending
+    });
+  };
+
   return (
     <div
       className="Lot"
@@ -192,14 +215,19 @@ function Lots() {
                 style={{ border: "1px solid #ddd" }}
               >
                 {headerGroup.headers.map((header) => (
-                  <TableCell key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableCell>
+                  <>
+                    <TableCell key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableCell>
+                    {status === "В работе" && header.id === "closeDate" && (
+                      <TableCell key={header.id}>{"Продлить"}</TableCell>
+                    )}
+                  </>
                 ))}
               </TableRow>
             ))}
@@ -215,9 +243,30 @@ function Lots() {
                 style={{ border: "1px solid #ddd" }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  <>
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                    {cell.column.id === "closeDate" &&
+                      row.original.status === "В работе" && (
+                        <TableCell key={cell.id}>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExtendLot(row.original);
+                            }}
+                            style={{ marginTop: 10 }}
+                          >
+                            Продлить лот
+                          </Button>
+                        </TableCell>
+                      )}
+                  </>
                 ))}
               </TableRow>
             ))}

@@ -28,6 +28,8 @@ import { Role } from "interfaces/auth";
 import iconSrc from "assets/icon/arrowLeftRounded.svg";
 import { getWidth } from "utils/width";
 import { HandySvg } from "handy-svg";
+import { updateLot } from "api/lots";
+import { updatePositionsById } from "api/positions";
 
 const columnHelper = createColumnHelper<Position>();
 
@@ -315,9 +317,18 @@ function LotInfo() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleCloseLot = () => {
+  const handleCloseLot = async() => {
     setStatus("Завершен");
-    dispatch(Redux.Actions.Lots.completeLot(Number(lotId)));
+    await updateLot(Number(lotId),{
+      statusId: 3,
+    rules: {
+      }
+    });
+    const entries = Object.entries(selectedRequests); 
+
+    await Promise.all(entries.map(async ([positionId, value]) => {
+      await updatePositionsById(Number(positionId), value);
+    }));
   };
 
   const handleExport = () => {

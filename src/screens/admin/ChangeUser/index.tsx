@@ -14,7 +14,7 @@ function User() {
     const fetchUsers = async () => {
       try {
         const usersData = await getUsers();
-        usersData.forEach((u: SupplierFullData) => {
+        usersData.forEach((u: SupplierFullData | SupplySpecialistFullData) => {
           if (id && u.id === parseInt(id)) {
             setUser(u);
           }

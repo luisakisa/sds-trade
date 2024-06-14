@@ -12,12 +12,22 @@ import { Role } from "interfaces/auth";
 import { getTypesOfBusiness } from "api/typesOfBusiness";
 import { getGroups } from "api/groups";
 import { useNavigate } from "react-router-dom";
-import { TextField, MenuItem, Select, InputLabel, FormControl, Checkbox, ListItemText, OutlinedInput, SelectChangeEvent } from "@mui/material";
+import {
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+  SelectChangeEvent,
+} from "@mui/material";
 
 const SignUpCard: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [typeOfBusinessId, setTypeOfBusinessId] = useState<number | null>(1);
+  const [typeOfBusinessId, setTypeOfBusinessId] = useState<number | null>();
   const [company, setCompany] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
@@ -33,8 +43,8 @@ const SignUpCard: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string>("");
   const [errorFill, setErrorFill] = useState<string>("");
 
-  const [selectedGroups, setSelectedGroups] = useState<number[]>([1,2]);
-  
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
+
   const groups = useSelector(Redux.Selectors.GroupsSelectors.getState);
   const dispatch = useDispatch();
   const [typesOfBusiness, setTypesOfBusiness] = useState<any[]>([]);
@@ -59,7 +69,9 @@ const SignUpCard: React.FC = () => {
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!checkPassword(event.target.value)) {
-      setPasswordError("Пароль должен содержать минимум 3 категории символов(большие, прописные буквы, цифры, спец. символы) и быть длиной не менее 8 символов");
+      setPasswordError(
+        "Пароль должен содержать минимум 3 категории символов(большие, прописные буквы, цифры, спец. символы) и быть длиной не менее 8 символов"
+      );
     } else {
       setPasswordError("");
     }
@@ -68,39 +80,61 @@ const SignUpCard: React.FC = () => {
 
   const checkPassword = (pass: string): boolean => {
     const minLength = 8;
-    const categories = [/[A-Z]/, /[a-z]/, /\d/, /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/];
+    const categories = [
+      /[A-Z]/,
+      /[a-z]/,
+      /\d/,
+      /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+    ];
     if (pass.length < minLength) {
       return false;
     }
-    const matchedCategories = categories.filter((category) => category.test(pass));
+    const matchedCategories = categories.filter((category) =>
+      category.test(pass)
+    );
     return matchedCategories.length >= 3;
   };
 
   const handleRegister = async () => {
-    if (!region || !inn || !kpp || !firstName || !lastName || !middleName || typeOfBusinessId === null || !company || !password) {
+    if (
+      !region ||
+      !inn ||
+      !kpp ||
+      !firstName ||
+      !lastName ||
+      !middleName ||
+      typeOfBusinessId === null ||
+      !company ||
+      !password
+    ) {
       setErrorFill("Пожалуйста, заполните все необходимые поля");
       return;
     }
-    await signUp({
-      firstName,
-      lastName,
-      middleName,
-      typeOfBusinessId,
-      company,
-      email,
-      password,
-      role: Role.Supplier,
-      phoneNumber,
-      regionOrAddress: region,
-      nds: checked,
-      inn,
-      kpp,
-      site: website,
-      groupEtsId: selectedGroups
-    });
+    try {
+      await signUp({
+        firstName,
+        lastName,
+        middleName,
+        typeOfBusinessId,
+        company,
+        email,
+        password,
+        role: Role.Supplier,
+        phoneNumber,
+        regionOrAddress: region,
+        nds: checked,
+        inn,
+        kpp,
+        site: website,
+        groupEtsId: selectedGroups,
+      });
+      alert("Ваш запрос на регистрацию отправлен");
+    } catch (error: any) {
+      setErrorFill(error.message);
+    }
   };
 
-  const handleGroupChange = (event:SelectChangeEvent<number[]>) => {
+  const handleGroupChange = (event: SelectChangeEvent<number[]>) => {
     setSelectedGroups(event.target.value as number[]);
   };
 
@@ -131,25 +165,14 @@ const SignUpCard: React.FC = () => {
               required
             />
             {passwordError && (
-              <span className="error-message" style={{ color: "red", fontSize: 10, width: 290 }}>{passwordError}</span>
+              <span
+                className="error-message"
+                style={{ color: "red", fontSize: 10, width: 290 }}
+              >
+                {passwordError}
+              </span>
             )}
           </div>
-          {/* <div className="form-group" style={{ maxWidth: 250 }}>
-            <FormControl fullWidth>
-              <InputLabel id="type-of-business-label">Вид субъекта предпринимательства</InputLabel>
-              <Select
-                labelId="type-of-business-label"
-                id="type-of-business"
-                value={typeOfBusinessId}
-                onChange={(e) => setTypeOfBusinessId(e.target.value as number)}
-                input={<OutlinedInput label="Вид субъекта предпринимательства" />}
-              >
-                {typesOfBusiness.map((type) => (
-                  <MenuItem key={type.id} value={type.id}>{type.typeName}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div> */}
           <div className="form-group">
             <label>Компания</label>
             <input
@@ -190,6 +213,31 @@ const SignUpCard: React.FC = () => {
               required
             />
           </div>
+          <div
+            className="form-group"
+            style={{ width: 265, marginBottom: 12, marginTop: 12 }}
+          >
+            <FormControl fullWidth>
+              <InputLabel id="type-of-business-label">
+                Вид субъекта предпринимательства
+              </InputLabel>
+              <Select
+                labelId="type-of-business-label"
+                id="type-of-business"
+                value={typeOfBusinessId}
+                onChange={(e) => setTypeOfBusinessId(e.target.value as number)}
+                input={
+                  <OutlinedInput label="Вид субъекта предпринимательства" />
+                }
+              >
+                {typesOfBusiness.map((type) => (
+                  <MenuItem key={type.id} value={type.id}>
+                    {type.typeName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
         </div>
         <div className="column-group">
           <div className="form-group">
@@ -222,13 +270,15 @@ const SignUpCard: React.FC = () => {
               required
             />
           </div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 20, marginTop: 12 }}>
             <input
               type="checkbox"
               checked={checked}
               onChange={(e) => setChecked(e.target.checked)}
             />
-            <label style={{ marginLeft: 8 }}>Организация является плательщиком НДС</label>
+            <label style={{ marginLeft: 8 }}>
+              Организация является плательщиком НДС
+            </label>
           </div>
           <div className="form-group">
             <label>ИНН</label>
@@ -248,7 +298,12 @@ const SignUpCard: React.FC = () => {
               required
             />
             {innError && (
-              <span className="error-message" style={{ color: "red", fontSize: 10 }}>Пожалуйста, введите числовое значение</span>
+              <span
+                className="error-message"
+                style={{ color: "red", fontSize: 10 }}
+              >
+                Пожалуйста, введите числовое значение
+              </span>
             )}
           </div>
           <div className="form-group">
@@ -269,10 +324,18 @@ const SignUpCard: React.FC = () => {
               required
             />
             {kppError && (
-              <span className="error-message" style={{ color: "red", fontSize: 10 }}>Пожалуйста, введите числовое значение</span>
+              <span
+                className="error-message"
+                style={{ color: "red", fontSize: 10 }}
+              >
+                Пожалуйста, введите числовое значение
+              </span>
             )}
           </div>
-          {/* <div className="form-group">
+          <div
+            className="form-group"
+            style={{ width: 265, marginBottom: 12, marginTop: 12 }}
+          >
             <FormControl fullWidth>
               <InputLabel id="groups-label">Группы</InputLabel>
               <Select
@@ -282,7 +345,11 @@ const SignUpCard: React.FC = () => {
                 value={selectedGroups}
                 onChange={handleGroupChange}
                 input={<OutlinedInput label="Группы" />}
-                renderValue={(selected) => selected.map(id => groups.find(g => g.id === id)?.name).join(', ')}
+                renderValue={(selected) =>
+                  selected
+                    .map((id) => groups.find((g) => g.id === id)?.name)
+                    .join(", ")
+                }
               >
                 {groups.map((group) => (
                   <MenuItem key={group.id} value={group.id}>
@@ -292,7 +359,7 @@ const SignUpCard: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-          </div> */}
+          </div>
         </div>
       </div>
       {errorFill && (

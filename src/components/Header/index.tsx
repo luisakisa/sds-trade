@@ -37,7 +37,8 @@ function Header() {
         </a>
         <nav>
           <ul className="nav">
-            {isAuthenticated && role === Role.Admin ? (
+            {isAuthenticated &&
+            role === (Role.Admin || Role.SecuritySpecialist) ? (
               <>
                 <li className="nav-item">
                   <Link className={getNavLinkClass("/about")} to="/about">
